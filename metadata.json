@@ -1,0 +1,6 @@
+{
+  "name": "APK Hub – Fast & Secure APK Downloader",
+  "description": "Download your favourite Android apps and games for free with APK Hub. Explore trending APKs, top charts, categories, and verified open-source packages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
