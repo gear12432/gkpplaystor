@@ -7,13 +7,8 @@ import {
   ShieldCheck,
   Star,
   ArrowLeft,
-  CheckCircle2,
-  Lock,
-  ExternalLink,
   AlertTriangle,
-  FileCode,
   Sparkles,
-  RotateCcw,
   Maximize2,
   X,
   ChevronLeft,
@@ -26,9 +21,8 @@ import {
   Globe,
   Layers,
 } from 'lucide-react';
-import { ApkItem, APK_ITEMS } from '@/lib/apk-data';
+import { ApkItem } from '@/lib/apk-data';
 import { AppIcon } from '@/components/AppIcon';
-import { TrendingAppCard } from '@/components/AppCard';
 
 type DownloadState = 'idle' | 'downloading' | 'completed' | 'error';
 
@@ -52,7 +46,7 @@ function buildFourPortraitScreenshots(app: ApkItem): PortraitScreenItem[] {
     {
       id: `${app.id}-sc-1`,
       tag: 'Home UI',
-      title: `${app.name} Home`,
+      title: `${app.name} Dashboard`,
       caption:
         app.screenshots[0]?.subtitle ||
         'Fast, responsive native Android interface',
@@ -107,9 +101,6 @@ export function AppDetailsAndDownloadView({ app }: { app: ApkItem }) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const portraitScreens = buildFourPortraitScreenshots(app);
-  const relatedApps = APK_ITEMS.filter(
-    (item) => item.slug !== app.slug && item.category === app.category
-  ).slice(0, 6);
 
   const buildClientFallbackApkBlob = (targetApp: ApkItem): Blob => {
     const manifestText = [
@@ -144,7 +135,7 @@ export function AppDetailsAndDownloadView({ app }: { app: ApkItem }) {
       if (app.isSamplePreview || !app.isAuthorizedDirectApk) {
         await new Promise((r) => setTimeout(r, 250));
         throw new Error(
-          `${app.name} (${app.packageName}) is a proprietary application owned by ${app.developer}. APK Hub does not host unauthorized third-party copies of copyrighted binaries. Please use the Official Developer Source button below or choose one of our Verified Open-Source APK packages.`
+          `${app.name} (${app.packageName}) is a proprietary application owned by ${app.developer}. APK Hub does not host unauthorized third-party copies of copyrighted binaries.`
         );
       }
 
@@ -311,90 +302,83 @@ export function AppDetailsAndDownloadView({ app }: { app: ApkItem }) {
   };
 
   return (
-    <div className="max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
-      {/* Back Link */}
-      <div className="flex items-center justify-between gap-2">
+    <div className="max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-5">
+      {/* Top Back Icon Only (Bold Clear Black Color, No Extra Text) */}
+      <div>
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#16C653] hover:underline"
+          aria-label="Back"
+          className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white dark:bg-[#152046] border border-slate-300 dark:border-white/20 text-[#000000] dark:text-white shadow-xs hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to APK Hub Home</span>
+          <ArrowLeft className="w-5 h-5 stroke-[2.75]" />
         </Link>
-        <span className="text-xs text-[#64748B] dark:text-slate-400">
-          {app.category}
-        </span>
       </div>
 
       {/* =========================================================
           1. APP HEADER CARD (App Logo + App Name + Right-Side Download Button + Single-Line Horizontal Scroll Feature & Screenshots)
          ========================================================= */}
       <section className="bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-3xl p-4 sm:p-8 shadow-xs space-y-5">
-        {/* Top Row: Square App Logo + Name/Developer + Download Button on Right Side of App Name */}
-        <div className="flex items-start justify-between gap-3 sm:gap-5">
-          <div className="flex items-start gap-3.5 sm:gap-5 min-w-0 flex-1">
-            <AppIcon
-              app={app}
-              size="lg"
-              className="w-16 h-16 sm:w-22 sm:h-22 rounded-2xl shrink-0 shadow-lg"
-            />
+        {/* Top Row: Square App Logo + Name/Developer + Download Button on Right Side */}
+        <div className="flex items-start gap-3 sm:gap-5">
+          <AppIcon
+            app={app}
+            size="lg"
+            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shrink-0 shadow-lg"
+          />
 
-            <div className="min-w-0 flex-1 space-y-1">
-              <div className="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#16C653] dark:text-[#75E85C]">
-                <span>{app.category}</span>
-                <span aria-hidden="true">·</span>
-                <span className="tabular-nums">v{app.version}</span>
-                <span aria-hidden="true">·</span>
-                <span className="tabular-nums">{app.size}</span>
-              </div>
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#16C653] dark:text-[#75E85C]">
+              <span>{app.category}</span>
+              <span aria-hidden="true">·</span>
+              <span className="tabular-nums">v{app.version}</span>
+              <span aria-hidden="true">·</span>
+              <span className="tabular-nums">{app.size}</span>
+            </div>
 
-              {/* App Name + Right-Side Download Button Row */}
-              <div className="flex items-center justify-between gap-2">
-                <h1 className="text-lg sm:text-3xl font-extrabold text-[#111827] dark:text-white tracking-tight leading-tight truncate">
+            {/* App Name + Right-Side Download Button Row */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg sm:text-2xl font-extrabold text-[#111827] dark:text-white tracking-tight leading-tight truncate">
                   {app.name}
                 </h1>
+                <div className="text-xs sm:text-sm font-semibold text-[#64748B] dark:text-slate-300 truncate mt-0.5">
+                  {app.developer}
+                </div>
               </div>
 
-              {/* Developer Name */}
-              <div className="text-xs sm:text-sm font-semibold text-[#64748B] dark:text-slate-300 truncate">
-                {app.developer}
-              </div>
-
-              {/* Rating & Verified Status */}
-              <div className="pt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] sm:text-xs text-[#64748B] dark:text-slate-300 tabular-nums">
-                {app.verifiedRating !== null && (
-                  <span className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span>{app.verifiedRating.toFixed(1)}</span>
-                  </span>
-                )}
-                {app.securityVerified && (
-                  <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-[#75E85C] font-semibold">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Verified APK</span>
-                  </span>
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={startApkDownload}
+                disabled={status === 'downloading'}
+                className="shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-[#16C653] hover:bg-[#13b149] disabled:opacity-60 text-white dark:text-[#0B1229] dark:bg-[#16C653] dark:hover:bg-[#75E85C] font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer whitespace-nowrap"
+              >
+                <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                <span>
+                  {status === 'downloading'
+                    ? `${progress}%`
+                    : status === 'completed'
+                    ? 'Downloaded'
+                    : 'Download'}
+                </span>
+              </button>
             </div>
-          </div>
 
-          {/* Right-Side Download Button (Directly beside the App Name row as marked in red box) */}
-          <div className="shrink-0 pt-2 sm:pt-3">
-            <button
-              type="button"
-              onClick={startApkDownload}
-              disabled={status === 'downloading'}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#16C653] hover:bg-[#13b149] disabled:opacity-60 text-white dark:text-[#0B1229] dark:bg-[#16C653] dark:hover:bg-[#75E85C] font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer whitespace-nowrap"
-            >
-              <Download className="w-4 h-4 shrink-0" />
-              <span>
-                {status === 'downloading'
-                  ? `${progress}%`
-                  : status === 'completed'
-                  ? 'Downloaded'
-                  : 'Download'}
-              </span>
-            </button>
+            {/* Rating & Verified Status */}
+            <div className="pt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] sm:text-xs text-[#64748B] dark:text-slate-300 tabular-nums">
+              {app.verifiedRating !== null && (
+                <span className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  <span>{app.verifiedRating.toFixed(1)}</span>
+                </span>
+              )}
+              <span>{app.minAndroid}</span>
+              {app.securityVerified && (
+                <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-[#75E85C] font-semibold">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Verified APK</span>
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -439,10 +423,10 @@ export function AppDetailsAndDownloadView({ app }: { app: ApkItem }) {
         <div className="pt-3 border-t border-slate-100 dark:border-white/10 space-y-2.5">
           <div className="flex items-center justify-between">
             <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#64748B] dark:text-slate-300">
-              Feature Graphic &amp; Screenshots
+              App Feature &amp; Screenshots
             </h2>
             <span className="text-[11px] text-[#16C653] dark:text-[#75E85C] font-semibold">
-              Swipe left/right →
+              Swipe ← →
             </span>
           </div>
 
@@ -455,25 +439,25 @@ export function AppDetailsAndDownloadView({ app }: { app: ApkItem }) {
               <div className="absolute inset-0 bg-gradient-to-t from-[#101A3A]/90 via-[#101A3A]/45 to-transparent pointer-events-none" />
               <div className="relative z-10 flex items-center justify-between gap-2">
                 <span className="px-2 py-0.5 rounded bg-black/30 backdrop-blur-xs text-[10px] font-mono uppercase tracking-wider text-[#75E85C] font-bold">
-                  Feature Graphic · v{app.version}
+                  Featured · v{app.version}
                 </span>
-                <AppIcon
-                  app={app}
-                  size="sm"
-                  className="w-9 h-9 rounded-xl border border-white/30"
-                />
+                <span className="px-2 py-0.5 rounded-md bg-white/15 text-[10px] font-bold text-white">
+                  {app.size}
+                </span>
               </div>
 
-              <div className="relative z-10 space-y-1">
+              <div className="relative z-10 space-y-1.5 my-auto py-1">
                 <div className="text-base sm:text-lg font-extrabold text-white leading-snug">
-                  {app.name} — Official Package
+                  {app.name} — Official Android Package
                 </div>
-                <p className="text-[11px] sm:text-xs text-slate-200 line-clamp-2 leading-relaxed">
+                <p className="text-xs text-slate-200 line-clamp-2 leading-relaxed">
                   {app.shortDescription}
                 </p>
-                <div className="pt-1 text-[10px] font-mono text-[#75E85C]">
-                  {app.minAndroid} · {app.size}
-                </div>
+              </div>
+
+              <div className="relative z-10 pt-2 border-t border-white/15 flex items-center justify-between text-[10px] text-white/80 font-semibold">
+                <span>✓ Verified Signature</span>
+                <span>Feature Graphic</span>
               </div>
             </div>
 
@@ -493,51 +477,10 @@ export function AppDetailsAndDownloadView({ app }: { app: ApkItem }) {
             ))}
           </div>
         </div>
-
-        {/* Full-Width Download Button & Developer Source Footer inside Header Card */}
-        <div className="pt-1 space-y-2.5">
-          <button
-            type="button"
-            onClick={startApkDownload}
-            disabled={status === 'downloading'}
-            className="w-full py-3.5 px-6 rounded-2xl bg-[#16C653] hover:bg-[#13b149] disabled:opacity-60 text-white dark:text-[#0B1229] dark:bg-[#16C653] dark:hover:bg-[#75E85C] font-extrabold text-sm sm:text-base shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            {status === 'error' ? (
-              <>
-                <RotateCcw className="w-4 h-4 shrink-0" />
-                <span>Retry Download APK ({app.size})</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4 shrink-0" />
-                <span>
-                  {status === 'downloading'
-                    ? `Downloading APK (${progress}%)...`
-                    : `Download APK (${app.size})`}
-                </span>
-              </>
-            )}
-          </button>
-
-          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#64748B] dark:text-slate-300">
-            <span className="font-mono truncate">
-              Package: {app.packageName}
-            </span>
-            <a
-              href={app.officialExternalApkUrl || app.officialWebsiteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 font-bold text-[#111827] dark:text-[#75E85C] hover:underline"
-            >
-              <span>Official Developer Source</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
-        </div>
       </section>
 
       {/* =========================================================
-          3. ABOUT THIS APP (SHORT DESCRIPTION + LONG DESCRIPTION + FEATURES)
+          3. ABOUT THIS APP (SHORT DESCRIPTION + LONG DESCRIPTION + WHAT'S NEW)
          ========================================================= */}
       <section className="bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 sm:p-8 space-y-5 shadow-xs">
         <div>
@@ -559,24 +502,6 @@ export function AppDetailsAndDownloadView({ app }: { app: ApkItem }) {
           {app.fullDescription}
         </p>
 
-        {/* Key Features */}
-        <div className="pt-3 border-t border-slate-100 dark:border-white/10 space-y-3">
-          <h3 className="text-sm sm:text-base font-extrabold text-[#111827] dark:text-white">
-            Key Features
-          </h3>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {app.features.map((feat, idx) => (
-              <li
-                key={idx}
-                className="p-3.5 rounded-2xl bg-[#F5F8FF] dark:bg-[#0B1229] flex items-start gap-2.5 text-xs sm:text-sm text-[#111827] dark:text-slate-200"
-              >
-                <CheckCircle2 className="w-4 h-4 text-[#16C653] shrink-0 mt-0.5" />
-                <span>{feat}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
         {/* What's New */}
         <div className="pt-3 border-t border-slate-100 dark:border-white/10 space-y-3">
           <h3 className="text-sm sm:text-base font-extrabold text-[#111827] dark:text-white flex items-center gap-2">
@@ -593,92 +518,6 @@ export function AppDetailsAndDownloadView({ app }: { app: ApkItem }) {
           </ul>
         </div>
       </section>
-
-      {/* =========================================================
-          4. TECHNICAL APK INFORMATION & PERMISSIONS
-         ========================================================= */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <section className="bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 sm:p-6 space-y-4">
-          <h2 className="text-base font-extrabold text-[#111827] dark:text-white flex items-center gap-2">
-            <FileCode className="w-5 h-5 text-[#16C653]" />
-            <span>Technical APK Specifications</span>
-          </h2>
-          <dl className="divide-y divide-slate-100 dark:divide-white/10 text-xs sm:text-sm tabular-nums">
-            <div className="py-2 flex justify-between gap-4">
-              <dt className="text-[#64748B] dark:text-slate-400">
-                Package Name
-              </dt>
-              <dd className="font-mono font-semibold text-right break-all">
-                {app.packageName}
-              </dd>
-            </div>
-            <div className="py-2 flex justify-between gap-4">
-              <dt className="text-[#64748B] dark:text-slate-400">Version</dt>
-              <dd className="font-semibold text-right">v{app.version}</dd>
-            </div>
-            <div className="py-2 flex justify-between gap-4">
-              <dt className="text-[#64748B] dark:text-slate-400">File Size</dt>
-              <dd className="font-semibold text-right">{app.size}</dd>
-            </div>
-            <div className="py-2 flex justify-between gap-4">
-              <dt className="text-[#64748B] dark:text-slate-400">Min Android</dt>
-              <dd className="font-semibold text-right">{app.minAndroid}</dd>
-            </div>
-            <div className="py-2 flex justify-between gap-4">
-              <dt className="text-[#64748B] dark:text-slate-400">
-                Architecture
-              </dt>
-              <dd className="font-mono text-right">{app.architecture}</dd>
-            </div>
-            <div className="py-2 flex justify-between gap-4">
-              <dt className="text-[#64748B] dark:text-slate-400">License</dt>
-              <dd className="font-semibold text-right">{app.license}</dd>
-            </div>
-          </dl>
-        </section>
-
-        <section className="bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 sm:p-6 space-y-4">
-          <h2 className="text-base font-extrabold text-[#111827] dark:text-white flex items-center gap-2">
-            <Lock className="w-4 h-4 text-[#16C653]" />
-            <span>App Permissions</span>
-          </h2>
-          {app.permissions.length > 0 ? (
-            <ul className="space-y-2.5">
-              {app.permissions.map((perm) => (
-                <li
-                  key={perm.name}
-                  className="p-3 rounded-2xl bg-[#F5F8FF] dark:bg-[#0B1229] text-xs space-y-0.5"
-                >
-                  <div className="font-mono font-bold text-[#111827] dark:text-[#75E85C] break-all">
-                    {perm.name}
-                  </div>
-                  <div className="text-[#64748B] dark:text-slate-300">
-                    {perm.description}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-xs text-[#64748B] dark:text-slate-300">
-              No special dangerous permissions required.
-            </p>
-          )}
-        </section>
-      </div>
-
-      {/* Related Apps */}
-      {relatedApps.length > 0 && (
-        <section className="pt-4 space-y-4">
-          <h2 className="text-lg font-extrabold text-[#111827] dark:text-white">
-            Similar in {app.category}
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {relatedApps.map((rel) => (
-              <TrendingAppCard key={rel.id} app={rel} />
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Lightbox Modal for Screenshots */}
       {lightboxIndex !== null && portraitScreens[lightboxIndex] && (
