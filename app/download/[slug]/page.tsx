@@ -2,7 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { APK_ITEMS, getAppBySlug } from '@/lib/apk-data';
-import { ApkDownloaderClient } from '@/components/ApkDownloaderClient';
+import { AppDetailsAndDownloadView } from '@/components/AppDetailsAndDownloadView';
 
 export async function generateStaticParams() {
   return APK_ITEMS.map((app) => ({
@@ -24,7 +24,7 @@ export async function generateMetadata({
   }
   return {
     title: `Download ${app.name} APK v${app.version} (${app.size}) – APK Hub`,
-    description: `Download ${app.name} (${app.packageName}) version ${app.version} (${app.size}) for ${app.minAndroid}. Check SHA-256 file integrity and package specifications on APK Hub.`,
+    description: `Download ${app.name} (${app.packageName}) version ${app.version} (${app.size}) for ${app.minAndroid} with screenshots and full description on APK Hub.`,
   };
 }
 
@@ -41,8 +41,8 @@ export default async function ApkDownloadPage({
   }
 
   return (
-    <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      <ApkDownloaderClient app={app} />
+    <main className="flex-1">
+      <AppDetailsAndDownloadView app={app} />
     </main>
   );
 }

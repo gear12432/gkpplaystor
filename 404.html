@@ -942,93 +942,220 @@
       `;
     }
 
-    function renderDetailsView() {
+    function renderUnifiedAppDetailsAndDownloadView() {
       const app = APK_ITEMS.find((a) => a.slug === state.selectedSlug) || APK_ITEMS[0];
+      const portraitScreens = [
+        { tag: 'Home UI', title: app.name + ' Dashboard', caption: 'Fast, responsive native Android interface', bgFrom: '#101A3A', bgTo: '#1E293B', barWidth: 80 },
+        { tag: 'Core Feature', title: 'High-Speed Engine', caption: 'Optimized for Android phones and tablets', bgFrom: '#172554', bgTo: '#0F172A', barWidth: 92 },
+        { tag: 'Controls', title: 'Custom Settings', caption: 'Granular privacy and media controls', bgFrom: '#1E1B4B', bgTo: '#0F172A', barWidth: 74 },
+        { tag: 'v' + app.version, title: 'Verified Build', caption: 'Supports ' + app.minAndroid, bgFrom: '#064E3B', bgTo: '#0F172A', barWidth: 100 },
+      ];
+
       return `
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-          <button onclick="navigate('home')" class="text-xs font-bold text-[#16C653] cursor-pointer">← Back to APK Catalog</button>
-          <div class="bg-white dark:bg-[#152046] border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div class="flex items-center gap-5">
-              <div class="w-20 h-20 rounded-3xl bg-gradient-to-br ${app.bgGradient} text-white font-extrabold text-2xl flex items-center justify-center shadow-lg">
-                ${app.labelText}
-              </div>
-              <div>
-                <div class="text-xs font-bold text-[#16C653]">${app.category} · ${app.developer}</div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold mt-1">${app.name}</h1>
-                <div class="text-xs text-[#64748B] dark:text-slate-300 mt-1">Version ${app.version} · ${app.size} · ${app.minAndroid}</div>
-              </div>
-            </div>
-            <button onclick="navigate('download', { slug: '${app.slug}' })" class="px-7 py-4 rounded-2xl bg-[#16C653] hover:bg-[#13b149] text-white dark:text-[#0B1229] font-extrabold text-sm shadow-lg cursor-pointer shrink-0">
-              Download APK (${app.size})
+        <div class="max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
+          <div class="flex items-center justify-between gap-2">
+            <button onclick="navigate('home')" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#16C653] hover:underline cursor-pointer">
+              ← Back to APK Hub Home
             </button>
+            <span class="text-xs text-[#64748B] dark:text-slate-400">${app.category}</span>
           </div>
 
-          <div class="bg-white dark:bg-[#152046] border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 space-y-4">
-            <h2 class="text-lg font-extrabold">About ${app.name}</h2>
-            <p class="text-sm text-[#64748B] dark:text-slate-300 leading-relaxed">${app.fullDescription}</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 text-xs">
-              <div class="p-3.5 rounded-2xl bg-[#F5F8FF] dark:bg-[#0B1229]"><strong>Package Name:</strong> <span class="font-mono">${app.packageName}</span></div>
+          <!-- 1. App Header + Feature Image + 4 Portrait Screenshots + Full-Width Download Button -->
+          <section class="bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 sm:p-8 shadow-xs space-y-6">
+            <!-- Top Row: Unsquished Square App Logo + App Name + Developer Name + Stats -->
+            <div class="flex items-start gap-4 sm:gap-6">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shrink-0 bg-gradient-to-br ${app.bgGradient} text-white font-extrabold text-2xl sm:text-3xl flex items-center justify-center shadow-lg relative overflow-hidden">
+                <span>${app.labelText}</span>
+                <span class="absolute bottom-1 right-1.5 text-[9px] font-bold uppercase opacity-70">APK</span>
+              </div>
+
+              <div class="min-w-0 flex-1 space-y-1.5">
+                <div class="flex flex-wrap items-center gap-2 text-xs font-bold text-[#16C653] dark:text-[#75E85C]">
+                  <span>${app.category}</span>
+                  <span>·</span>
+                  <span class="tabular-nums">v${app.version}</span>
+                  <span>·</span>
+                  <span class="tabular-nums">${app.size}</span>
+                </div>
+
+                <h1 class="text-xl sm:text-3xl font-extrabold text-[#111827] dark:text-white tracking-tight leading-tight">
+                  ${app.name}
+                </h1>
+
+                <div class="text-xs sm:text-sm font-semibold text-[#64748B] dark:text-slate-300">
+                  ${app.developer}
+                </div>
+
+                <div class="pt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#64748B] dark:text-slate-300 tabular-nums">
+                  ${app.verifiedRating ? `<span class="font-bold text-amber-500">★ ${app.verifiedRating}</span>` : ''}
+                  <span>${app.minAndroid}</span>
+                  ${app.securityVerified ? `<span class="text-emerald-600 dark:text-[#75E85C] font-semibold">✓ Verified APK</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. App Feature Graphic Banner + 4 Portrait App Screenshots -->
+            <div class="space-y-4 pt-2 border-t border-slate-100 dark:border-white/10">
+              <!-- Feature Image Banner -->
+              <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r ${app.bgGradient} p-5 sm:p-6 text-white shadow-md">
+                <div class="absolute inset-0 bg-gradient-to-r from-[#101A3A]/85 via-[#101A3A]/50 to-transparent pointer-events-none"></div>
+                <div class="relative z-10 flex items-center justify-between gap-4">
+                  <div class="space-y-1 max-w-lg">
+                    <div class="text-[11px] font-mono uppercase tracking-wider text-[#75E85C] font-bold">
+                      Featured Android Release · v${app.version}
+                    </div>
+                    <div class="text-lg sm:text-xl font-extrabold text-white">
+                      ${app.name} — Official Android Package
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-200 line-clamp-2">
+                      ${app.shortDescription}
+                    </p>
+                  </div>
+                  <div class="hidden sm:flex w-14 h-14 rounded-2xl shrink-0 bg-gradient-to-br ${app.bgGradient} border-2 border-white/30 items-center justify-center font-extrabold text-lg">
+                    ${app.labelText}
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4 Portrait App Screenshot Images -->
+              <div>
+                <div class="flex items-center justify-between mb-2.5">
+                  <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#64748B] dark:text-slate-300">
+                    App Screenshots Preview
+                  </h2>
+                  <span class="text-[11px] text-[#64748B] dark:text-slate-400">
+                    4 Official Mobile Screens
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  ${portraitScreens.map((sc, idx) => `
+                    <div class="rounded-2xl p-3.5 min-h-[205px] sm:min-h-[235px] border border-slate-200 dark:border-white/15 shadow-sm flex flex-col justify-between text-white" style="background: linear-gradient(160deg, ${sc.bgFrom} 0%, ${sc.bgTo} 100%);">
+                      <div class="flex items-center justify-between text-[10px] text-white/70 font-mono pb-2 border-b border-white/10">
+                        <span>9:41</span>
+                        <span class="px-1.5 py-0.5 rounded bg-white/10 text-[9px] text-[#75E85C]">${sc.tag}</span>
+                      </div>
+                      <div class="my-3 space-y-2 flex-1 flex flex-col justify-center">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br ${app.bgGradient} flex items-center justify-center text-white text-xs font-extrabold shadow">
+                          ${app.labelText}
+                        </div>
+                        <div class="text-xs sm:text-sm font-extrabold text-white leading-snug">${sc.title}</div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed">${sc.caption}</p>
+                        <div class="space-y-1.5 pt-1">
+                          <div class="h-1.5 w-full rounded-full bg-white/15 overflow-hidden">
+                            <div class="h-full rounded-full bg-[#16C653]" style="width: ${sc.barWidth}%"></div>
+                          </div>
+                          <div class="h-1.5 w-2/3 rounded-full bg-white/10"></div>
+                        </div>
+                      </div>
+                      <div class="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-white/60">
+                        <span>Screen 0${idx + 1}</span>
+                        <span>HD</span>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Full-Width Prominent Green Download APK Button -->
+            <div class="pt-2 space-y-3">
+              <button onclick="triggerApkDownload('${app.slug}')" class="w-full py-4 px-6 rounded-2xl bg-[#16C653] hover:bg-[#13b149] text-white dark:text-[#0B1229] dark:bg-[#16C653] dark:hover:bg-[#75E85C] font-extrabold text-base shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <span>⬇</span>
+                <span>${state.downloadStatus === 'downloading' ? `Downloading APK (${state.downloadProgress}%)...` : state.downloadStatus === 'completed' ? `Download APK Again (${app.size})` : `Download APK (${app.size})`}</span>
+              </button>
+
+              <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-[#64748B] dark:text-slate-300">
+                <span class="font-mono truncate">Package: ${app.packageName}</span>
+                <a href="${app.officialExternalApkUrl || app.officialWebsiteUrl}" target="_blank" rel="noopener noreferrer" class="font-bold text-[#111827] dark:text-[#75E85C] hover:underline">
+                  Official Developer Source ↗
+                </a>
+              </div>
+
+              ${state.downloadStatus === 'downloading' || state.downloadStatus === 'completed' ? `
+                <div class="space-y-1.5 pt-1">
+                  <div class="w-full h-3 bg-slate-100 dark:bg-[#0B1229] rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-[#16C653] to-[#75E85C] transition-all" style="width: ${state.downloadProgress}%"></div>
+                  </div>
+                  <div class="flex items-center justify-between text-xs font-mono text-[#64748B] dark:text-slate-300">
+                    <span>${state.downloadStatus === 'completed' ? `✓ Download Complete (${app.packageName}-v${app.version}.apk)` : 'Streaming APK package...'}</span>
+                    <span>${state.downloadProgress}%</span>
+                  </div>
+                </div>
+              ` : ''}
+
+              ${state.downloadStatus === 'error' && state.downloadError ? `
+                <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-950 dark:text-amber-100 leading-relaxed">
+                  <strong>Official Source Notice:</strong> ${state.downloadError}
+                </div>
+              ` : ''}
+            </div>
+          </section>
+
+          <!-- 4. About This App (Short Description + Long Description + Key Features + What's New) -->
+          <section class="bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 sm:p-8 space-y-5 shadow-xs">
+            <div>
+              <h2 class="text-lg sm:text-xl font-extrabold text-[#111827] dark:text-white">
+                About ${app.name}
+              </h2>
+              <p class="text-xs text-[#64748B] dark:text-slate-400 mt-0.5">
+                Updated ${app.updatedAt} · Developed by ${app.developer}
+              </p>
+            </div>
+
+            <p class="text-sm sm:text-base font-semibold text-[#111827] dark:text-slate-100 leading-relaxed">
+              ${app.shortDescription}
+            </p>
+
+            <p class="text-sm sm:text-base text-[#64748B] dark:text-slate-300 leading-relaxed">
+              ${app.fullDescription}
+            </p>
+
+            <div class="pt-3 border-t border-slate-100 dark:border-white/10 space-y-3">
+              <h3 class="text-sm sm:text-base font-extrabold text-[#111827] dark:text-white">
+                Key Features
+              </h3>
+              <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                ${(app.features || []).map((feat) => `
+                  <li class="p-3.5 rounded-2xl bg-[#F5F8FF] dark:bg-[#0B1229] flex items-start gap-2.5 text-xs sm:text-sm text-[#111827] dark:text-slate-200">
+                    <span class="text-[#16C653] font-bold">✓</span>
+                    <span>${feat}</span>
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 dark:border-white/10 space-y-2.5">
+              <h3 class="text-sm sm:text-base font-extrabold text-[#111827] dark:text-white">
+                What's New in v${app.version}
+              </h3>
+              <ul class="space-y-1.5 text-xs sm:text-sm text-[#64748B] dark:text-slate-300">
+                ${(app.whatsNew || []).map((w) => `
+                  <li class="flex items-start gap-2">
+                    <span class="text-[#16C653] font-bold">•</span>
+                    <span>${w}</span>
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 dark:border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="p-3.5 rounded-2xl bg-[#F5F8FF] dark:bg-[#0B1229]"><strong>Package Name:</strong> <span class="font-mono break-all">${app.packageName}</span></div>
               <div class="p-3.5 rounded-2xl bg-[#F5F8FF] dark:bg-[#0B1229]"><strong>License:</strong> ${app.license}</div>
               <div class="p-3.5 rounded-2xl bg-[#F5F8FF] dark:bg-[#0B1229]"><strong>Architecture:</strong> ${app.architecture}</div>
-              <div class="p-3.5 rounded-2xl bg-[#F5F8FF] dark:bg-[#0B1229]"><strong>Updated:</strong> ${app.updatedAt}</div>
+              <div class="p-3.5 rounded-2xl bg-[#F5F8FF] dark:bg-[#0B1229]"><strong>Min Android:</strong> ${app.minAndroid}</div>
             </div>
-          </div>
+          </section>
         </div>
       `;
     }
 
+    function renderDetailsView() {
+      return renderUnifiedAppDetailsAndDownloadView();
+    }
+
     function renderDownloadView() {
-      const app = APK_ITEMS.find((a) => a.slug === state.selectedSlug) || APK_ITEMS[0];
-      return `
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-          <button onclick="navigate('details', { slug: '${app.slug}' })" class="text-xs font-bold text-[#16C653] cursor-pointer">← Back to ${app.name} Details</button>
-          <div class="bg-white dark:bg-[#152046] border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 space-y-6">
-            <div class="flex items-center gap-5">
-              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br ${app.bgGradient} text-white font-extrabold text-xl flex items-center justify-center shadow-md">
-                ${app.labelText}
-              </div>
-              <div>
-                <div class="text-xs font-bold uppercase text-[#16C653]">APK Download Page</div>
-                <h1 class="text-2xl font-extrabold">${app.name} v${app.version}</h1>
-                <div class="text-xs text-[#64748B] dark:text-slate-300 font-mono">${app.packageName} · ${app.size} · ${app.minAndroid}</div>
-              </div>
-            </div>
-
-            ${app.sha256 ? `
-              <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 text-xs font-mono break-all">
-                <strong>Verified SHA-256:</strong> ${app.sha256}
-              </div>
-            ` : ''}
-
-            <div class="flex flex-wrap items-center gap-3">
-              <button onclick="triggerApkDownload('${app.slug}')" class="px-7 py-4 rounded-2xl bg-[#16C653] hover:bg-[#13b149] text-white dark:text-[#0B1229] font-extrabold text-sm shadow-lg cursor-pointer">
-                ${state.downloadStatus === 'downloading' ? `Downloading (${state.downloadProgress}%)...` : state.downloadStatus === 'completed' ? 'Download APK Again' : `Download APK (${app.size})`}
-              </button>
-              <a href="${app.officialExternalApkUrl || app.officialWebsiteUrl}" target="_blank" rel="noopener noreferrer" class="px-5 py-4 rounded-2xl bg-[#101A3A] text-white text-xs font-bold">
-                Official Developer Source ↗
-              </a>
-            </div>
-
-            ${state.downloadStatus === 'downloading' || state.downloadStatus === 'completed' ? `
-              <div class="w-full h-3 bg-slate-100 dark:bg-[#0B1229] rounded-full overflow-hidden">
-                <div class="h-full bg-[#16C653] transition-all" style="width: ${state.downloadProgress}%"></div>
-              </div>
-            ` : ''}
-
-            ${state.downloadStatus === 'completed' ? `
-              <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 text-xs font-semibold">
-                ✓ Download complete! Check your browser downloads for ${app.packageName}-v${app.version}.apk.
-              </div>
-            ` : ''}
-
-            ${state.downloadStatus === 'error' && state.downloadError ? `
-              <div class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200 text-xs leading-relaxed">
-                <strong>Notice:</strong> ${state.downloadError}
-              </div>
-            ` : ''}
-          </div>
-        </div>
-      `;
+      return renderUnifiedAppDetailsAndDownloadView();
     }
 
     function renderDirectoryView(title, filterFn) {
