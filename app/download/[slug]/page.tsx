@@ -1,8 +1,14 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getAppBySlug } from '@/lib/apk-data';
+import { APK_ITEMS, getAppBySlug } from '@/lib/apk-data';
 import { ApkDownloaderClient } from '@/components/ApkDownloaderClient';
+
+export async function generateStaticParams() {
+  return APK_ITEMS.map((app) => ({
+    slug: app.slug,
+  }));
+}
 
 export async function generateMetadata({
   params,

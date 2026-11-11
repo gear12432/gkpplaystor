@@ -19,6 +19,12 @@ import { AppIcon } from '@/components/AppIcon';
 import { ScreenshotGallery } from '@/components/ScreenshotGallery';
 import { TrendingAppCard } from '@/components/AppCard';
 
+export async function generateStaticParams() {
+  return APK_ITEMS.map((app) => ({
+    slug: app.slug,
+  }));
+}
+
 export async function generateMetadata({
   params,
 }: {

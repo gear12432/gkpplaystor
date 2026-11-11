@@ -147,8 +147,7 @@ export function Footer() {
         {/* Bottom Copyright & Disclaimer Bar */}
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <p>
-            &copy; {new Date().getFullYear()} APK Hub – Download Unlimited APK.
-            All rights reserved.
+            &copy; 2026 APK Hub – Download Unlimited APK. All rights reserved.
           </p>
           <p className="text-center sm:text-right">
             Android is a trademark of Google LLC. APK Hub only provides
