@@ -960,17 +960,17 @@
             <span class="text-xs text-[#64748B] dark:text-slate-400">${app.category}</span>
           </div>
 
-          <!-- 1. App Header + Feature Image + 4 Portrait Screenshots + Full-Width Download Button -->
-          <section class="bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 sm:p-8 shadow-xs space-y-6">
-            <!-- Top Row: Unsquished Square App Logo + App Name + Developer Name + Stats -->
-            <div class="flex items-start gap-4 sm:gap-6">
-              <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shrink-0 bg-gradient-to-br ${app.bgGradient} text-white font-extrabold text-2xl sm:text-3xl flex items-center justify-center shadow-lg relative overflow-hidden">
+          <!-- 1. App Header + Single-Line Scrollable Feature Image & Screenshots + Full-Width Download Button -->
+          <section class="bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-3xl p-4 sm:p-8 shadow-xs space-y-5">
+            <!-- Top Row: App Logo + App Name & Developer Name + Right-Side Download Button -->
+            <div class="flex items-start gap-3.5 sm:gap-5">
+              <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shrink-0 bg-gradient-to-br ${app.bgGradient} text-white font-extrabold text-xl sm:text-2xl flex items-center justify-center shadow-lg relative overflow-hidden">
                 <span>${app.labelText}</span>
                 <span class="absolute bottom-1 right-1.5 text-[9px] font-bold uppercase opacity-70">APK</span>
               </div>
 
-              <div class="min-w-0 flex-1 space-y-1.5">
-                <div class="flex flex-wrap items-center gap-2 text-xs font-bold text-[#16C653] dark:text-[#75E85C]">
+              <div class="min-w-0 flex-1 space-y-1">
+                <div class="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#16C653] dark:text-[#75E85C]">
                   <span>${app.category}</span>
                   <span>·</span>
                   <span class="tabular-nums">v${app.version}</span>
@@ -978,15 +978,24 @@
                   <span class="tabular-nums">${app.size}</span>
                 </div>
 
-                <h1 class="text-xl sm:text-3xl font-extrabold text-[#111827] dark:text-white tracking-tight leading-tight">
-                  ${app.name}
-                </h1>
+                <!-- App Name + Right-Side Download Button Row -->
+                <div class="flex items-center justify-between gap-2.5">
+                  <div class="min-w-0">
+                    <h1 class="text-lg sm:text-2xl font-extrabold text-[#111827] dark:text-white tracking-tight leading-tight truncate">
+                      ${app.name}
+                    </h1>
+                    <div class="text-xs sm:text-sm font-semibold text-[#64748B] dark:text-slate-300 truncate mt-0.5">
+                      ${app.developer}
+                    </div>
+                  </div>
 
-                <div class="text-xs sm:text-sm font-semibold text-[#64748B] dark:text-slate-300">
-                  ${app.developer}
+                  <button onclick="triggerApkDownload('${app.slug}')" class="shrink-0 inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-[#16C653] hover:bg-[#13b149] text-white dark:text-[#0B1229] dark:bg-[#16C653] dark:hover:bg-[#75E85C] font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer">
+                    <span>⬇</span>
+                    <span>${state.downloadStatus === 'downloading' ? `${state.downloadProgress}%` : 'Download'}</span>
+                  </button>
                 </div>
 
-                <div class="pt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#64748B] dark:text-slate-300 tabular-nums">
+                <div class="pt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] sm:text-xs text-[#64748B] dark:text-slate-300 tabular-nums">
                   ${app.verifiedRating ? `<span class="font-bold text-amber-500">★ ${app.verifiedRating}</span>` : ''}
                   <span>${app.minAndroid}</span>
                   ${app.securityVerified ? `<span class="text-emerald-600 dark:text-[#75E85C] font-semibold">✓ Verified APK</span>` : ''}
@@ -994,67 +1003,71 @@
               </div>
             </div>
 
-            <!-- 2. App Feature Graphic Banner + 4 Portrait App Screenshots -->
-            <div class="space-y-4 pt-2 border-t border-slate-100 dark:border-white/10">
-              <!-- Feature Image Banner -->
-              <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r ${app.bgGradient} p-5 sm:p-6 text-white shadow-md">
-                <div class="absolute inset-0 bg-gradient-to-r from-[#101A3A]/85 via-[#101A3A]/50 to-transparent pointer-events-none"></div>
-                <div class="relative z-10 flex items-center justify-between gap-4">
-                  <div class="space-y-1 max-w-lg">
-                    <div class="text-[11px] font-mono uppercase tracking-wider text-[#75E85C] font-bold">
-                      Featured Android Release · v${app.version}
-                    </div>
-                    <div class="text-lg sm:text-xl font-extrabold text-white">
+            <!-- 2. Single-Row Horizontal Scroll: App Feature Image + 4 App Screenshot Images (Right-to-Left Scroll) -->
+            <div class="space-y-2.5 pt-3 border-t border-slate-100 dark:border-white/10">
+              <div class="flex items-center justify-between">
+                <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#64748B] dark:text-slate-300">
+                  App Feature &amp; Screenshots
+                </h2>
+                <span class="text-[11px] font-semibold text-[#16C653] dark:text-[#75E85C]">
+                  Swipe ← →
+                </span>
+              </div>
+
+              <div class="flex items-stretch gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-1 px-1">
+                <!-- Item 1: Wide App Feature Graphic Card -->
+                <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r ${app.bgGradient} p-4 sm:p-5 text-white shadow-md w-[255px] sm:w-[320px] h-[205px] sm:h-[230px] shrink-0 snap-start flex flex-col justify-between border border-slate-200/40 dark:border-white/15">
+                  <div class="absolute inset-0 bg-gradient-to-r from-[#101A3A]/85 via-[#101A3A]/55 to-transparent pointer-events-none"></div>
+                  <div class="relative z-10 flex items-center justify-between gap-2">
+                    <span class="text-[10px] font-mono uppercase tracking-wider text-[#75E85C] font-bold">
+                      Featured · v${app.version}
+                    </span>
+                    <span class="px-2 py-0.5 rounded-md bg-white/15 text-[10px] font-bold text-white">
+                      ${app.size}
+                    </span>
+                  </div>
+
+                  <div class="relative z-10 space-y-1.5 my-auto py-1">
+                    <div class="text-base sm:text-lg font-extrabold text-white leading-snug">
                       ${app.name} — Official Android Package
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-200 line-clamp-2">
+                    <p class="text-xs text-slate-200 line-clamp-2 leading-relaxed">
                       ${app.shortDescription}
                     </p>
                   </div>
-                  <div class="hidden sm:flex w-14 h-14 rounded-2xl shrink-0 bg-gradient-to-br ${app.bgGradient} border-2 border-white/30 items-center justify-center font-extrabold text-lg">
-                    ${app.labelText}
+
+                  <div class="relative z-10 pt-2 border-t border-white/15 flex items-center justify-between text-[10px] text-white/80 font-semibold">
+                    <span>✓ Verified Signature</span>
+                    <span>Feature Graphic</span>
                   </div>
                 </div>
-              </div>
 
-              <!-- 4 Portrait App Screenshot Images -->
-              <div>
-                <div class="flex items-center justify-between mb-2.5">
-                  <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#64748B] dark:text-slate-300">
-                    App Screenshots Preview
-                  </h2>
-                  <span class="text-[11px] text-[#64748B] dark:text-slate-400">
-                    4 Official Mobile Screens
-                  </span>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  ${portraitScreens.map((sc, idx) => `
-                    <div class="rounded-2xl p-3.5 min-h-[205px] sm:min-h-[235px] border border-slate-200 dark:border-white/15 shadow-sm flex flex-col justify-between text-white" style="background: linear-gradient(160deg, ${sc.bgFrom} 0%, ${sc.bgTo} 100%);">
-                      <div class="flex items-center justify-between text-[10px] text-white/70 font-mono pb-2 border-b border-white/10">
-                        <span>9:41</span>
-                        <span class="px-1.5 py-0.5 rounded bg-white/10 text-[9px] text-[#75E85C]">${sc.tag}</span>
+                <!-- Items 2–5: 4 Portrait App Screenshot Cards in the Same Horizontal Line -->
+                ${portraitScreens.map((sc, idx) => `
+                  <div class="rounded-2xl p-3.5 w-[140px] sm:w-[160px] h-[205px] sm:h-[230px] shrink-0 snap-start border border-slate-200 dark:border-white/15 shadow-sm flex flex-col justify-between text-white" style="background: linear-gradient(160deg, ${sc.bgFrom} 0%, ${sc.bgTo} 100%);">
+                    <div class="flex items-center justify-between text-[10px] text-white/70 font-mono pb-1.5 border-b border-white/10">
+                      <span>9:41</span>
+                      <span class="px-1.5 py-0.5 rounded bg-white/10 text-[9px] text-[#75E85C] truncate max-w-[78px]">${sc.tag}</span>
+                    </div>
+                    <div class="my-1.5 space-y-1.5 flex-1 flex flex-col justify-center">
+                      <div class="w-8 h-8 rounded-xl bg-gradient-to-br ${app.bgGradient} flex items-center justify-center text-white text-[11px] font-extrabold shadow">
+                        ${app.labelText}
                       </div>
-                      <div class="my-3 space-y-2 flex-1 flex flex-col justify-center">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br ${app.bgGradient} flex items-center justify-center text-white text-xs font-extrabold shadow">
-                          ${app.labelText}
+                      <div class="text-xs font-extrabold text-white leading-snug line-clamp-1">${sc.title}</div>
+                      <p class="text-[10px] text-slate-300 leading-snug line-clamp-2">${sc.caption}</p>
+                      <div class="space-y-1 pt-0.5">
+                        <div class="h-1.5 w-full rounded-full bg-white/15 overflow-hidden">
+                          <div class="h-full rounded-full bg-[#16C653]" style="width: ${sc.barWidth}%"></div>
                         </div>
-                        <div class="text-xs sm:text-sm font-extrabold text-white leading-snug">${sc.title}</div>
-                        <p class="text-[11px] text-slate-300 leading-relaxed">${sc.caption}</p>
-                        <div class="space-y-1.5 pt-1">
-                          <div class="h-1.5 w-full rounded-full bg-white/15 overflow-hidden">
-                            <div class="h-full rounded-full bg-[#16C653]" style="width: ${sc.barWidth}%"></div>
-                          </div>
-                          <div class="h-1.5 w-2/3 rounded-full bg-white/10"></div>
-                        </div>
-                      </div>
-                      <div class="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-white/60">
-                        <span>Screen 0${idx + 1}</span>
-                        <span>HD</span>
+                        <div class="h-1.5 w-2/3 rounded-full bg-white/10"></div>
                       </div>
                     </div>
-                  `).join('')}
-                </div>
+                    <div class="pt-1.5 border-t border-white/10 flex items-center justify-between text-[9px] text-white/60">
+                      <span>Screen 0${idx + 1}</span>
+                      <span>HD</span>
+                    </div>
+                  </div>
+                `).join('')}
               </div>
             </div>
 
