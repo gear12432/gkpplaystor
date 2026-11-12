@@ -1,0 +1,588 @@
+{
+  "entities": {
+    "AdminRole": {
+      "title": "AdminRole",
+      "description": "Authorized administrator membership record keyed by Firebase Auth UID.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 256
+        },
+        "role": {
+          "type": "string",
+          "enum": ["super_admin", "admin"],
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "role", "createdAt"]
+    },
+    "AdminProfile": {
+      "title": "AdminProfile",
+      "description": "Administrator profile details stored at /adminProfiles/{adminUid}.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 256
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "photoUrl": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "accountStatus": {
+          "type": "string",
+          "enum": ["active", "suspended"],
+          "maxLength": 32
+        },
+        "role": {
+          "type": "string",
+          "enum": ["super_admin", "admin"],
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "email",
+        "displayName",
+        "photoUrl",
+        "accountStatus",
+        "role",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ApkApp": {
+      "title": "ApkApp",
+      "description": "APK application or game record managed by the Admin Panel and consumed by the APK Hub website.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "slug": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140
+        },
+        "developer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140
+        },
+        "packageName": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 180
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "size": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "minAndroid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "releaseDate": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "shortDescription": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "fullDescription": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 5000
+        },
+        "whatsNew": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "iconUrl": {
+          "type": "string",
+          "maxLength": 150000
+        },
+        "screenshotUrls": {
+          "type": "array",
+          "description": "Up to 6 screenshot URLs or data URIs"
+        },
+        "apkFileName": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "apkDownloadUrl": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "externalDownloadUrl": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive"],
+          "maxLength": 24
+        },
+        "downloadEnabled": {
+          "type": "boolean"
+        },
+        "featured": {
+          "type": "boolean"
+        },
+        "trending": {
+          "type": "boolean"
+        },
+        "downloads": {
+          "type": "number"
+        },
+        "rating": {
+          "type": "number"
+        },
+        "createdBy": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "slug",
+        "name",
+        "developer",
+        "packageName",
+        "category",
+        "version",
+        "size",
+        "minAndroid",
+        "releaseDate",
+        "shortDescription",
+        "fullDescription",
+        "whatsNew",
+        "iconUrl",
+        "screenshotUrls",
+        "apkFileName",
+        "apkDownloadUrl",
+        "externalDownloadUrl",
+        "status",
+        "downloadEnabled",
+        "featured",
+        "trending",
+        "downloads",
+        "rating",
+        "createdBy",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Category metadata managed by admins.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "slug": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 600
+        },
+        "iconUrl": {
+          "type": "string",
+          "maxLength": 100000
+        },
+        "totalApps": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive"],
+          "maxLength": 24
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "slug",
+        "description",
+        "iconUrl",
+        "totalApps",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Banner": {
+      "title": "Banner",
+      "description": "Promotional banner managed by admins.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "subtitle": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "desktopBannerUrl": {
+          "type": "string",
+          "maxLength": 150000
+        },
+        "mobileBannerUrl": {
+          "type": "string",
+          "maxLength": 150000
+        },
+        "buttonText": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "destinationUrl": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "position": {
+          "type": "string",
+          "enum": ["hero", "mid_promo", "footer_promo", "category_top"],
+          "maxLength": 40
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive"],
+          "maxLength": 24
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "subtitle",
+        "desktopBannerUrl",
+        "mobileBannerUrl",
+        "buttonText",
+        "destinationUrl",
+        "position",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "DownloadEvent": {
+      "title": "DownloadEvent",
+      "description": "Recorded APK download event for download history and analytics.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "targetId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "targetType": {
+          "type": "string",
+          "enum": ["app", "game"],
+          "maxLength": 16
+        },
+        "appName": {
+          "type": "string",
+          "maxLength": 140
+        },
+        "packageName": {
+          "type": "string",
+          "maxLength": 180
+        },
+        "version": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "dateKey": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "monthKey": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "targetId",
+        "targetType",
+        "appName",
+        "packageName",
+        "version",
+        "dateKey",
+        "monthKey",
+        "createdAt"
+      ]
+    },
+    "AnalyticsSummary": {
+      "title": "AnalyticsSummary",
+      "description": "Aggregated download analytics record.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "periodType": {
+          "type": "string",
+          "enum": ["daily", "weekly", "monthly"],
+          "maxLength": 24
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "downloads": {
+          "type": "number"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "periodType", "label", "downloads", "updatedAt"]
+    },
+    "WebsiteSettings": {
+      "title": "WebsiteSettings",
+      "description": "Global website configuration for APK Hub.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "websiteName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "websiteLogoUrl": {
+          "type": "string",
+          "maxLength": 100000
+        },
+        "websiteFaviconUrl": {
+          "type": "string",
+          "maxLength": 100000
+        },
+        "websiteDescription": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "contactEmail": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "footerText": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "privacyPolicy": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "termsConditions": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "disclaimer": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "facebookUrl": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "twitterUrl": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "telegramUrl": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "youtubeUrl": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "maintenanceMode": {
+          "type": "boolean"
+        },
+        "directDownloadsEnabled": {
+          "type": "boolean"
+        },
+        "requireChecksumVerification": {
+          "type": "boolean"
+        },
+        "maxDownloadSpeedLabel": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "websiteName",
+        "websiteLogoUrl",
+        "websiteFaviconUrl",
+        "websiteDescription",
+        "contactEmail",
+        "footerText",
+        "privacyPolicy",
+        "termsConditions",
+        "disclaimer",
+        "facebookUrl",
+        "twitterUrl",
+        "telegramUrl",
+        "youtubeUrl",
+        "maintenanceMode",
+        "directDownloadsEnabled",
+        "requireChecksumVerification",
+        "maxDownloadSpeedLabel",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/admins/{adminUid}": {
+      "schema": { "$ref": "#/entities/AdminRole" },
+      "description": "Authorized admin role registry."
+    },
+    "/adminProfiles/{adminUid}": {
+      "schema": { "$ref": "#/entities/AdminProfile" },
+      "description": "Admin user profile documents containing PII (email)."
+    },
+    "/apps/{appId}": {
+      "schema": { "$ref": "#/entities/ApkApp" },
+      "description": "Android applications catalog shared between Admin Panel and public APK Hub website."
+    },
+    "/games/{gameId}": {
+      "schema": { "$ref": "#/entities/ApkApp" },
+      "description": "Android games catalog shared between Admin Panel and public APK Hub website."
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "APK Hub application and game categories."
+    },
+    "/banners/{bannerId}": {
+      "schema": { "$ref": "#/entities/Banner" },
+      "description": "Promotional banners displayed on the APK Hub website."
+    },
+    "/downloadEvents/{eventId}": {
+      "schema": { "$ref": "#/entities/DownloadEvent" },
+      "description": "Recorded APK download telemetry events."
+    },
+    "/analytics/{metricId}": {
+      "schema": { "$ref": "#/entities/AnalyticsSummary" },
+      "description": "Aggregated daily, weekly, and monthly download analytics."
+    },
+    "/websiteSettings/{settingId}": {
+      "schema": { "$ref": "#/entities/WebsiteSettings" },
+      "description": "Global website settings and legal policies."
+    }
+  }
+}

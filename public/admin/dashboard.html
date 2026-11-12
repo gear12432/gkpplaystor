@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APK Hub – Fast &amp; Secure APK Downloader</title>
+  <meta name="description" content="Download your favourite Android apps and games for free with APK Hub. Explore trending APKs, top charts, categories, and verified open-source packages." />
+  <meta property="og:title" content="APK Hub – Fast &amp; Secure APK Downloader" />
+  <meta property="og:description" content="Download your favourite Android apps and games for free with APK Hub. Explore trending APKs, top charts, categories, and verified open-source packages." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="font-sans antialiased min-h-screen bg-[#F4F7FC] text-[#172033]">
+  <div id="app-root" class="min-h-screen flex flex-col"></div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signInWithEmailAndPassword,
+      signInWithPopup,
+      GoogleAuthProvider,
+      signOut,
+      sendPasswordResetEmail,
+      updatePassword,
+      updateProfile,
+      setPersistence,
+      browserLocalPersistence,
+      browserSessionPersistence
+    } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      getDocFromServer,
+      setDoc,
+      updateDoc,
+      deleteDoc,
+      onSnapshot,
+      serverTimestamp,
+      query,
+      where
+    } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+      projectId: "bionic-bebop-t8gvj",
+      appId: "1:640261110206:web:4f9d06c956934fe38f61ef",
+      apiKey: "AIzaSyA4xR7rsdSw6-Dv4gy11Y3XnJ0BUQtFM6Y",
+      authDomain: "bionic-bebop-t8gvj.firebaseapp.com",
+      firestoreDatabaseId: "ai-studio-apkhubfastsecure-598670a6-205f-4cfa-9c47-0a8e888e271f",
+      storageBucket: "bionic-bebop-t8gvj.firebasestorage.app",
+      messagingSenderId: "640261110206",
+    };
+
+    const BOOTSTRAPPED_ADMIN_EMAIL = "skjiyaul842@gmail.com";
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+    const auth = getAuth(app);
+
+    // Validate Firestore connection on boot
+    getDocFromServer(doc(db, 'test', 'connection')).catch(() => {});
+
+    const DEFAULT_CATEGORIES_SEED = [
+      { id: 'social-media', name: 'Social Media', slug: 'social-media', description: 'Connect, share stories, and message friends globally.', iconUrl: '💬', totalApps: 2, status: 'active' },
+      { id: 'games', name: 'Games', slug: 'games', description: 'Action, battle royale, sandbox, and arcade Android games.', iconUrl: '🎮', totalApps: 4, status: 'active' },
+      { id: 'productivity', name: 'Productivity', slug: 'productivity', description: 'Note taking, document editing, and workflow automation.', iconUrl: '⚡', totalApps: 1, status: 'active' },
+      { id: 'entertainment', name: 'Entertainment', slug: 'entertainment', description: 'Video streaming, media players, and creator platforms.', iconUrl: '🎬', totalApps: 2, status: 'active' },
+      { id: 'tools', name: 'Tools', slug: 'tools', description: 'System utilities, file managers, and open-source clients.', iconUrl: '🛠️', totalApps: 2, status: 'active' },
+      { id: 'photography', name: 'Photography', slug: 'photography', description: 'RAW camera controls, photo editors, and filters.', iconUrl: '📷', totalApps: 1, status: 'active' },
+      { id: 'education', name: 'Education', slug: 'education', description: 'Language learning, coding, and reference dictionaries.', iconUrl: '📚', totalApps: 1, status: 'active' },
+      { id: 'communication', name: 'Communication', slug: 'communication', description: 'Encrypted messengers, browsers, and VoIP calling apps.', iconUrl: '📡', totalApps: 3, status: 'active' },
+      { id: 'music-audio', name: 'Music & Audio', slug: 'music-audio', description: 'Lossless audio players, podcasts, and music streaming.', iconUrl: '🎵', totalApps: 1, status: 'active' },
+      { id: 'lifestyle', name: 'Lifestyle', slug: 'lifestyle', description: 'Daily habits, weather, fitness, and smart home control.', iconUrl: '🌟', totalApps: 1, status: 'active' },
+      { id: 'business', name: 'Business', slug: 'business', description: 'Remote desktop, enterprise team chat, and invoicing.', iconUrl: '💼', totalApps: 1, status: 'active' },
+      { id: 'security', name: 'Security', slug: 'security', description: '2FA authenticators, password managers, and VPN tools.', iconUrl: '🛡️', totalApps: 2, status: 'active' },
+    ];
+
+    const DEFAULT_APPS_SEED = [
+      {
+        id: 'telegram',
+        slug: 'telegram',
+        name: 'Telegram',
+        developer: 'Telegram FZ-LLC',
+        packageName: 'org.telegram.messenger.web',
+        category: 'Communication',
+        version: '11.4.2',
+        size: '71.2 MB',
+        minAndroid: 'Android 6.0+ (API 23)',
+        releaseDate: '2026-11-10',
+        shortDescription: 'Fast, cloud-synced messenger with reproducible open-source Android APK builds.',
+        fullDescription: 'Telegram for Android is an officially distributed, reproducible open-source messaging application supporting 2 GB file transfers, channels, and cloud storage.',
+        whatsNew: 'Direct independent auto-updater for standalone APK installations and hardware-accelerated AV1 video playback.',
+        iconUrl: '',
+        screenshotUrls: [],
+        apkFileName: 'org.telegram.messenger.web-v11.4.2.apk',
+        apkDownloadUrl: 'https://telegram.org/dl/android/apk',
+        externalDownloadUrl: 'https://telegram.org/android',
+        status: 'active',
+        downloadEnabled: true,
+        featured: true,
+        trending: true,
+        downloads: 18420,
+        rating: 4.8,
+      },
+      {
+        id: 'vlc-android',
+        slug: 'vlc-android',
+        name: 'VLC for Android',
+        developer: 'VideoLabs',
+        packageName: 'org.videolan.vlc',
+        category: 'Entertainment',
+        version: '3.6.3',
+        size: '42.8 MB',
+        minAndroid: 'Android 5.0+ (API 21)',
+        releaseDate: '2026-11-08',
+        shortDescription: 'Free and open-source cross-platform multimedia player for all video and audio codecs.',
+        fullDescription: 'VLC for Android plays most local video and audio files, as well as network streams, DVD ISOs, MKV, MP4, FLAC, and multi-track audio.',
+        whatsNew: 'Improved hardware decoding on Android 15 devices and Picture-in-Picture subtitle rendering.',
+        iconUrl: '',
+        screenshotUrls: [],
+        apkFileName: 'org.videolan.vlc-v3.6.3.apk',
+        apkDownloadUrl: 'https://get.videolan.org/vlc-android/3.6.3/VLC-Android-3.6.3-arm64-v8a.apk',
+        externalDownloadUrl: 'https://www.videolan.org/vlc/download-android.html',
+        status: 'active',
+        downloadEnabled: true,
+        featured: true,
+        trending: true,
+        downloads: 14350,
+        rating: 4.7,
+      },
+      {
+        id: 'signal-messenger',
+        slug: 'signal-messenger',
+        name: 'Signal Private Messenger',
+        developer: 'Signal Foundation',
+        packageName: 'org.thoughtcrime.securesms',
+        category: 'Security',
+        version: '7.24.2',
+        size: '68.5 MB',
+        minAndroid: 'Android 6.0+ (API 23)',
+        releaseDate: '2026-11-09',
+        shortDescription: 'State-of-the-art end-to-end encrypted messaging and voice/video calls.',
+        fullDescription: 'Signal uses an advanced open-source end-to-end encryption protocol to keep your conversations private every single time.',
+        whatsNew: 'Post-quantum PQXDH key agreement protocol and username privacy controls.',
+        iconUrl: '',
+        screenshotUrls: [],
+        apkFileName: 'org.thoughtcrime.securesms-v7.24.2.apk',
+        apkDownloadUrl: 'https://signal.org/android/apk/',
+        externalDownloadUrl: 'https://signal.org/android/apk/',
+        status: 'active',
+        downloadEnabled: true,
+        featured: true,
+        trending: true,
+        downloads: 11290,
+        rating: 4.9,
+      }
+    ];
+
+    const DEFAULT_GAMES_SEED = [
+      {
+        id: 'minetest-luanti',
+        slug: 'minetest-luanti',
+        name: 'Luanti (Minetest Sandbox)',
+        developer: 'Luanti Open Source Community',
+        packageName: 'net.minetest.minetest',
+        category: 'Games',
+        version: '5.10.0',
+        size: '28.6 MB',
+        minAndroid: 'Android 6.0+ (API 23)',
+        releaseDate: '2026-11-06',
+        shortDescription: 'Infinite-world open-source voxel sandbox game engine with multiplayer servers.',
+        fullDescription: 'Luanti (formerly Minetest) is a near-infinite-world block sandbox game and game engine supporting custom Lua mods and 60fps mobile touch controls.',
+        whatsNew: 'Dynamic shadows on OpenGL ES 3.2 and revamped Android touch joystick.',
+        iconUrl: '',
+        screenshotUrls: [],
+        apkFileName: 'net.minetest.minetest-v5.10.0.apk',
+        apkDownloadUrl: 'https://www.luanti.org/downloads/',
+        externalDownloadUrl: 'https://www.luanti.org',
+        status: 'active',
+        downloadEnabled: true,
+        featured: true,
+        trending: true,
+        downloads: 16200,
+        rating: 4.7,
+      },
+      {
+        id: 'supertuxkart-mobile',
+        slug: 'supertuxkart-mobile',
+        name: 'SuperTuxKart 3D Racing',
+        developer: 'SuperTuxKart Team',
+        packageName: 'org.supertuxkart.stk',
+        category: 'Games',
+        version: '1.4',
+        size: '148.0 MB',
+        minAndroid: 'Android 7.0+ (API 24)',
+        releaseDate: '2026-11-04',
+        shortDescription: '3D open-source arcade kart racer with online multiplayer and story mode.',
+        fullDescription: 'SuperTuxKart is a 3D open-source arcade racer with a variety of characters, tracks, and modes.',
+        whatsNew: 'Vulkan renderer support for Android devices and new battle arenas.',
+        iconUrl: '',
+        screenshotUrls: [],
+        apkFileName: 'org.supertuxkart.stk-v1.4.apk',
+        apkDownloadUrl: 'https://supertuxkart.net/Download',
+        externalDownloadUrl: 'https://supertuxkart.net',
+        status: 'active',
+        downloadEnabled: true,
+        featured: true,
+        trending: true,
+        downloads: 12890,
+        rating: 4.8,
+      }
+    ];
+
+    const DEFAULT_BANNERS_SEED = [
+      { id: 'hero-main-banner', title: 'Fast & Secure APK Downloader', subtitle: 'Download Your Favourite Apps & Games for Android Free!', desktopBannerUrl: '', mobileBannerUrl: '', buttonText: 'Explore Top APKs', destinationUrl: '/apps', position: 'hero', status: 'active' },
+      { id: 'mid-promo-banner', title: 'Get The Latest APK Updates!', subtitle: 'Fast • Safe • Free Verified Packages', desktopBannerUrl: '', mobileBannerUrl: '', buttonText: 'Download Now', destinationUrl: '/top-charts', position: 'mid_promo', status: 'active' }
+    ];
+
+    const DEFAULT_ANALYTICS_SEED = [
+      { id: 'daily-mon', periodType: 'daily', label: 'Mon', downloads: 1240 },
+      { id: 'daily-tue', periodType: 'daily', label: 'Tue', downloads: 1580 },
+      { id: 'daily-wed', periodType: 'daily', label: 'Wed', downloads: 1890 },
+      { id: 'daily-thu', periodType: 'daily', label: 'Thu', downloads: 1720 },
+      { id: 'daily-fri', periodType: 'daily', label: 'Fri', downloads: 2340 },
+      { id: 'daily-sat', periodType: 'daily', label: 'Sat', downloads: 2890 },
+      { id: 'daily-sun', periodType: 'daily', label: 'Sun', downloads: 3120 },
+      { id: 'weekly-w1', periodType: 'weekly', label: 'Week 1', downloads: 9850 },
+      { id: 'weekly-w2', periodType: 'weekly', label: 'Week 2', downloads: 12430 },
+      { id: 'weekly-w3', periodType: 'weekly', label: 'Week 3', downloads: 14120 },
+      { id: 'weekly-w4', periodType: 'weekly', label: 'Week 4', downloads: 16890 },
+      { id: 'monthly-jun', periodType: 'monthly', label: 'Jun', downloads: 38200 },
+      { id: 'monthly-jul', periodType: 'monthly', label: 'Jul', downloads: 44100 },
+      { id: 'monthly-aug', periodType: 'monthly', label: 'Aug', downloads: 51900 },
+      { id: 'monthly-sep', periodType: 'monthly', label: 'Sep', downloads: 58400 },
+      { id: 'monthly-oct', periodType: 'monthly', label: 'Oct', downloads: 64200 },
+      { id: 'monthly-nov', periodType: 'monthly', label: 'Nov', downloads: 72190 }
+    ];
+
+    const DEFAULT_SETTINGS_SEED = {
+      id: 'global',
+      websiteName: 'APK Hub',
+      websiteLogoUrl: '',
+      websiteFaviconUrl: '',
+      websiteDescription: 'Fast & Secure APK Downloader — Download Your Favourite Apps & Games for Android Free!',
+      contactEmail: 'admin@apkhub.store',
+      footerText: '© 2026 APK Hub. Download Unlimited APK • Fast, Safe & Free.',
+      privacyPolicy: 'APK Hub respects user privacy. We do not require user accounts for downloading public APK packages.',
+      termsConditions: 'All applications distributed on APK Hub are verified open-source builds or official developer links.',
+      disclaimer: 'Android, Google Play, and the Google Play logo are trademarks of Google LLC.',
+      facebookUrl: 'https://facebook.com/apkhub',
+      twitterUrl: 'https://x.com/apkhub',
+      telegramUrl: 'https://t.me/apkhub',
+      youtubeUrl: 'https://youtube.com/@apkhub',
+      maintenanceMode: false,
+      directDownloadsEnabled: true,
+      requireChecksumVerification: true,
+      maxDownloadSpeedLabel: 'Unlimited CDN High-Speed',
+    };
+
+    const state = {
+      authChecking: true,
+      user: null,
+      isAuthorizedAdmin: false,
+      authError: '',
+      resetNotice: '',
+      showPassword: false,
+      rememberMe: true,
+      section: window.__INITIAL_ADMIN_SECTION__ || 'dashboard',
+      mobileDrawer: false,
+      apps: [],
+      games: [],
+      categories: [],
+      banners: [],
+      downloadEvents: [],
+      analytics: [],
+      settings: { ...DEFAULT_SETTINGS_SEED },
+      adminProfile: null,
+      editingType: 'app',
+      editingId: null,
+      appSearch: '',
+      appCategoryFilter: 'ALL',
+      appStatusFilter: 'ALL',
+      gameSearch: '',
+      toast: null,
+      previewItem: null,
+    };
+
+    function sanitizeId(raw) {
+      return String(raw || '').trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 120) || ('item-' + Date.now());
+    }
+
+    function showToast(title, message, type = 'success') {
+      state.toast = { title, message, type };
+      render();
+      setTimeout(() => {
+        state.toast = null;
+        render();
+      }, 4000);
+    }
+
+    async function seedDatabase(uid) {
+      try {
+        for (const c of DEFAULT_CATEGORIES_SEED) {
+          await setDoc(doc(db, 'categories', c.id), { ...c, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        }
+        for (const a of DEFAULT_APPS_SEED) {
+          await setDoc(doc(db, 'apps', a.id), { ...a, createdBy: uid, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        }
+        for (const g of DEFAULT_GAMES_SEED) {
+          await setDoc(doc(db, 'games', g.id), { ...g, createdBy: uid, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        }
+        for (const b of DEFAULT_BANNERS_SEED) {
+          await setDoc(doc(db, 'banners', b.id), { ...b, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        }
+        for (const an of DEFAULT_ANALYTICS_SEED) {
+          await setDoc(doc(db, 'analytics', an.id), { ...an, updatedAt: serverTimestamp() });
+        }
+        await setDoc(doc(db, 'websiteSettings', 'global'), { ...DEFAULT_SETTINGS_SEED, updatedAt: serverTimestamp() });
+        showToast('Firebase Synced', 'All APK Hub collections populated in Firestore.');
+      } catch (e) {
+        showToast('Sync Notice', e.message || 'Could not seed database', 'error');
+      }
+    }
+
+    let listenersAttached = false;
+    function attachRealtimeListeners(uid) {
+      if (listenersAttached) return;
+      listenersAttached = true;
+      let autoSeeded = false;
+
+      onSnapshot(query(collection(db, 'apps'), where('status', 'in', ['active', 'inactive'])), (snap) => {
+        state.apps = snap.docs.map(d => d.data());
+        if (state.apps.length === 0 && !autoSeeded) {
+          autoSeeded = true;
+          seedDatabase(uid);
+        }
+        render();
+      });
+
+      onSnapshot(query(collection(db, 'games'), where('status', 'in', ['active', 'inactive'])), (snap) => {
+        state.games = snap.docs.map(d => d.data());
+        render();
+      });
+
+      onSnapshot(query(collection(db, 'categories'), where('status', 'in', ['active', 'inactive'])), (snap) => {
+        state.categories = snap.docs.map(d => d.data());
+        render();
+      });
+
+      onSnapshot(query(collection(db, 'banners'), where('status', 'in', ['active', 'inactive'])), (snap) => {
+        state.banners = snap.docs.map(d => d.data());
+        render();
+      });
+
+      onSnapshot(query(collection(db, 'downloadEvents'), where('targetType', 'in', ['app', 'game'])), (snap) => {
+        state.downloadEvents = snap.docs.map(d => d.data());
+        render();
+      });
+
+      onSnapshot(query(collection(db, 'analytics'), where('periodType', 'in', ['daily', 'weekly', 'monthly'])), (snap) => {
+        state.analytics = snap.docs.map(d => d.data());
+        render();
+      });
+
+      onSnapshot(doc(db, 'websiteSettings', 'global'), (snap) => {
+        if (snap.exists()) {
+          state.settings = snap.data();
+          render();
+        }
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      state.authChecking = true;
+      render();
+      if (!user) {
+        state.user = null;
+        state.isAuthorizedAdmin = false;
+        state.authChecking = false;
+        render();
+        return;
+      }
+
+      const isBootstrapped = user.email && user.email.toLowerCase() === BOOTSTRAPPED_ADMIN_EMAIL.toLowerCase() && user.emailVerified;
+      let hasAdminDoc = false;
+      try {
+        const snap = await getDoc(doc(db, 'admins', user.uid));
+        hasAdminDoc = snap.exists();
+      } catch {}
+
+      if (!isBootstrapped && !hasAdminDoc) {
+        state.authError = `Access Denied: "${user.email || user.uid}" is not an authorized administrator. Sign in with ${BOOTSTRAPPED_ADMIN_EMAIL}.`;
+        await signOut(auth);
+        state.user = null;
+        state.isAuthorizedAdmin = false;
+        state.authChecking = false;
+        render();
+        return;
+      }
+
+      if (isBootstrapped && !hasAdminDoc) {
+        try {
+          await setDoc(doc(db, 'admins', user.uid), {
+            uid: user.uid,
+            email: user.email,
+            role: 'super_admin',
+            createdAt: serverTimestamp()
+          });
+        } catch {}
+      }
+
+      state.user = user;
+      state.isAuthorizedAdmin = true;
+      state.authChecking = false;
+      attachRealtimeListeners(user.uid);
+      render();
+    });
+
+    // Global Event Handlers exposed to window
+    window.setSection = (sec) => {
+      state.section = sec;
+      state.mobileDrawer = false;
+      render();
+    };
+
+    window.toggleDrawer = (open) => {
+      state.mobileDrawer = open;
+      render();
+    };
+
+    window.toggleShowPassword = () => {
+      state.showPassword = !state.showPassword;
+      render();
+    };
+
+    window.handleEmailLoginSubmit = async (e) => {
+      e.preventDefault();
+      state.authError = '';
+      const email = document.getElementById('login-email').value.trim();
+      const pass = document.getElementById('login-password').value;
+      try {
+        await setPersistence(auth, state.rememberMe ? browserLocalPersistence : browserSessionPersistence);
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (err) {
+        state.authError = 'Invalid email/password credentials or Email/Password provider is not yet enabled in Firebase Console. Use the Authorized Google Admin button below or enable Email/Password in Firebase Console.';
+        render();
+      }
+    };
+
+    window.handleGoogleSSO = async () => {
+      state.authError = '';
+      try {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        state.authError = err.message || 'Google Admin sign-in failed.';
+        render();
+      }
+    };
+
+    window.handleForgotPass = async () => {
+      const emailEl = document.getElementById('login-email');
+      const email = emailEl ? emailEl.value.trim() : '';
+      if (!email) {
+        state.authError = 'Enter your admin email address first to receive a password reset link.';
+        render();
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        state.resetNotice = `Password reset link sent to ${email}.`;
+        render();
+      } catch (err) {
+        state.authError = err.message;
+        render();
+      }
+    };
+
+    window.handleLogoutClick = async () => {
+      await signOut(auth);
+    };
+
+    window.handleSyncSeed = () => {
+      if (state.user) seedDatabase(state.user.uid);
+    };
+
+    window.openCreateItem = (type) => {
+      state.editingType = type;
+      state.editingId = null;
+      state.section = 'add-app';
+      render();
+    };
+
+    window.openEditItem = (type, id) => {
+      state.editingType = type;
+      state.editingId = id;
+      state.section = 'edit-app';
+      render();
+    };
+
+    window.saveAppOrGameForm = async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const name = f.elements['name'].value.trim();
+      const developer = f.elements['developer'].value.trim();
+      const packageName = f.elements['packageName'].value.trim();
+      const category = f.elements['category'].value.trim();
+      const version = f.elements['version'].value.trim();
+      const size = f.elements['size'].value.trim();
+      const minAndroid = f.elements['minAndroid'].value.trim();
+      const releaseDate = f.elements['releaseDate'].value.trim();
+      const shortDescription = f.elements['shortDescription'].value.trim();
+      const fullDescription = f.elements['fullDescription'].value.trim();
+      const whatsNew = f.elements['whatsNew'].value.trim() || 'Verified release.';
+      const iconUrl = f.elements['iconUrl'].value.trim();
+      const apkFileName = f.elements['apkFileName'].value.trim() || `${packageName}-v${version}.apk`;
+      const apkDownloadUrl = f.elements['apkDownloadUrl'].value.trim();
+      const externalDownloadUrl = f.elements['externalDownloadUrl'].value.trim();
+      const status = f.elements['status'].value;
+      const featured = f.elements['featured'].checked;
+      const trending = f.elements['trending'].checked;
+      const downloadEnabled = f.elements['downloadEnabled'].checked;
+
+      const id = state.editingId ? sanitizeId(state.editingId) : sanitizeId(name);
+      const col = state.editingType === 'game' ? 'games' : 'apps';
+
+      try {
+        const refDoc = doc(db, col, id);
+        const existingSnap = await getDoc(refDoc);
+        const existing = existingSnap.exists() ? existingSnap.data() : null;
+        await setDoc(refDoc, {
+          id,
+          slug: id,
+          name: name.slice(0, 140),
+          developer: developer.slice(0, 140),
+          packageName: packageName.slice(0, 180),
+          category: category.slice(0, 80),
+          version: version.slice(0, 60),
+          size: size.slice(0, 40),
+          minAndroid: minAndroid.slice(0, 80),
+          releaseDate: releaseDate.slice(0, 60),
+          shortDescription: shortDescription.slice(0, 500),
+          fullDescription: fullDescription.slice(0, 5000),
+          whatsNew: whatsNew.slice(0, 2000),
+          iconUrl: iconUrl.slice(0, 150000),
+          screenshotUrls: existing?.screenshotUrls || [],
+          apkFileName: apkFileName.slice(0, 240),
+          apkDownloadUrl: apkDownloadUrl.slice(0, 2000),
+          externalDownloadUrl: externalDownloadUrl.slice(0, 2000),
+          status,
+          downloadEnabled,
+          featured,
+          trending,
+          downloads: existing?.downloads || 0,
+          rating: existing?.rating || 4.8,
+          createdBy: existing?.createdBy || state.user.uid,
+          createdAt: existing?.createdAt || serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+        showToast('Saved to Firebase', `${name} v${version} saved in /${col}.`);
+        state.section = state.editingType === 'game' ? 'games' : 'apps';
+        render();
+      } catch (err) {
+        showToast('Save Error', err.message, 'error');
+      }
+    };
+
+    window.toggleItemStatus = async (type, id, currentStatus) => {
+      const col = type === 'game' ? 'games' : 'apps';
+      const next = currentStatus === 'active' ? 'inactive' : 'active';
+      try {
+        await updateDoc(doc(db, col, id), { status: next, updatedAt: serverTimestamp() });
+        showToast('Status Updated', `Item status set to ${next}.`);
+      } catch (err) {
+        showToast('Update Error', err.message, 'error');
+      }
+    };
+
+    window.deleteItemRecord = async (type, id, name) => {
+      const col = type === 'game' ? 'games' : 'apps';
+      try {
+        await deleteDoc(doc(db, col, id));
+        showToast('Deleted', `${name} removed from Firebase /${col}.`);
+      } catch (err) {
+        showToast('Delete Error', err.message, 'error');
+      }
+    };
+
+    window.saveCategoryForm = async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const name = f.elements['catName'].value.trim();
+      const iconUrl = f.elements['catIcon'].value.trim() || '📱';
+      const description = f.elements['catDesc'].value.trim();
+      const status = f.elements['catStatus'].value;
+      const id = sanitizeId(name);
+      try {
+        await setDoc(doc(db, 'categories', id), {
+          id,
+          name: name.slice(0, 100),
+          slug: id.slice(0, 100),
+          description: description.slice(0, 600),
+          iconUrl: iconUrl.slice(0, 100000),
+          totalApps: 1,
+          status,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+        showToast('Category Saved', `Category "${name}" saved to Firebase.`);
+        f.reset();
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    window.deleteCategoryRecord = async (id) => {
+      try {
+        await deleteDoc(doc(db, 'categories', id));
+        showToast('Category Deleted', 'Removed from /categories.');
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    window.saveBannerForm = async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const title = f.elements['bTitle'].value.trim();
+      const subtitle = f.elements['bSub'].value.trim();
+      const buttonText = f.elements['bBtn'].value.trim() || 'Download Now';
+      const destinationUrl = f.elements['bUrl'].value.trim() || '/apps';
+      const position = f.elements['bPos'].value;
+      const status = f.elements['bStatus'].value;
+      const id = sanitizeId(title);
+      try {
+        await setDoc(doc(db, 'banners', id), {
+          id,
+          title: title.slice(0, 160),
+          subtitle: subtitle.slice(0, 300),
+          desktopBannerUrl: '',
+          mobileBannerUrl: '',
+          buttonText: buttonText.slice(0, 80),
+          destinationUrl: destinationUrl.slice(0, 1000),
+          position,
+          status,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+        showToast('Banner Saved', `Banner "${title}" published to Firebase.`);
+        f.reset();
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    window.deleteBannerRecord = async (id) => {
+      try {
+        await deleteDoc(doc(db, 'banners', id));
+        showToast('Banner Deleted', 'Removed from /banners.');
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    window.toggleDownloadSwitch = async (type, id, enabled, apkFileName, apkDownloadUrl, externalDownloadUrl) => {
+      const col = type === 'game' ? 'games' : 'apps';
+      try {
+        await updateDoc(doc(db, col, id), {
+          downloadEnabled: !enabled,
+          apkFileName,
+          apkDownloadUrl,
+          externalDownloadUrl,
+          updatedAt: serverTimestamp()
+        });
+        showToast('Download Status Updated', `Downloads ${!enabled ? 'enabled' : 'disabled'}.`);
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    window.saveSettingsForm = async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      try {
+        await setDoc(doc(db, 'websiteSettings', 'global'), {
+          ...state.settings,
+          id: 'global',
+          websiteName: f.elements['websiteName'].value.trim().slice(0, 120),
+          contactEmail: f.elements['contactEmail'].value.trim().slice(0, 256),
+          websiteDescription: f.elements['websiteDescription'].value.trim().slice(0, 1000),
+          footerText: f.elements['footerText'].value.trim().slice(0, 500),
+          privacyPolicy: f.elements['privacyPolicy'].value.trim().slice(0, 10000),
+          termsConditions: f.elements['termsConditions'].value.trim().slice(0, 10000),
+          disclaimer: f.elements['disclaimer'].value.trim().slice(0, 10000),
+          maintenanceMode: f.elements['maintenanceMode'].checked,
+          directDownloadsEnabled: f.elements['directDownloadsEnabled'].checked,
+          updatedAt: serverTimestamp(),
+        });
+        showToast('Settings Saved', 'Global Website Settings updated in Firebase.');
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    function render() {
+      const root = document.getElementById('app-root');
+      if (!root) return;
+
+      if (state.authChecking) {
+        root.innerHTML = `
+          <div class="min-h-screen bg-[#101A3A] text-white flex flex-col items-center justify-center p-6">
+            <div class="w-16 h-16 rounded-2xl bg-[#16C653] text-[#101A3A] flex items-center justify-center font-black text-xl shadow-2xl mb-4">APK</div>
+            <div class="text-lg font-extrabold">APK Hub Enterprise Admin Panel</div>
+            <p class="text-xs text-slate-300 mt-1">Verifying Firebase Admin Authorization...</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (!state.user || !state.isAuthorizedAdmin) {
+        root.innerHTML = `
+          <div class="min-h-screen bg-gradient-to-br from-[#101A3A] via-[#172554] to-[#0B1229] flex items-center justify-center p-4">
+            <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
+              <div class="bg-[#101A3A] px-6 py-7 text-white flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-[#16C653] text-[#101A3A] font-black text-base flex items-center justify-center shadow-lg">APK</div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl font-extrabold">APK <span class="text-[#16C653]">Hub</span></span>
+                    <span class="px-2 py-0.5 rounded bg-[#7047EB] text-[10px] font-bold uppercase">Admin Console</span>
+                  </div>
+                  <p class="text-xs text-slate-300 mt-0.5">Authorized Administrator Portal · Firebase Connected</p>
+                </div>
+              </div>
+              <div class="p-6 sm:p-8 space-y-5">
+                <div>
+                  <h1 class="text-xl font-extrabold text-[#172033]">Admin Sign In</h1>
+                  <p class="text-xs text-[#64748B] mt-1">Sign in with your authorized APK Hub administrator account. Public registration is disabled.</p>
+                </div>
+                ${state.authError ? `<div class="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-900">${state.authError}</div>` : ''}
+                ${state.resetNotice ? `<div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">${state.resetNotice}</div>` : ''}
+                <form onsubmit="handleEmailLoginSubmit(event)" class="space-y-4">
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Admin Email</label>
+                    <input id="login-email" type="email" required placeholder="${BOOTSTRAPPED_ADMIN_EMAIL}" class="w-full px-4 py-3 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Password</label>
+                    <div class="relative">
+                      <input id="login-password" type="${state.showPassword ? 'text' : 'password'}" required placeholder="Enter administrator password" class="w-full px-4 py-3 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                      <button type="button" onclick="toggleShowPassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#64748B]">${state.showPassword ? 'Hide' : 'Show'}</button>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between text-xs">
+                    <label class="inline-flex items-center gap-2 font-semibold">
+                      <input type="checkbox" checked class="rounded" />
+                      <span>Remember me</span>
+                    </label>
+                    <button type="button" onclick="handleForgotPass()" class="font-bold text-[#7047EB] hover:underline">Forgot password?</button>
+                  </div>
+                  <button type="submit" class="w-full py-3.5 rounded-xl bg-[#16C653] hover:bg-[#13b149] text-white font-extrabold text-sm shadow-lg cursor-pointer">Login to Dashboard</button>
+                </form>
+                <div class="relative flex py-1 items-center">
+                  <div class="flex-grow border-t border-slate-200"></div>
+                  <span class="shrink mx-3 text-[11px] font-bold uppercase text-[#64748B]">Or Verified Firebase Admin SSO</span>
+                  <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+                <button type="button" onclick="handleGoogleSSO()" class="w-full py-3 px-4 rounded-xl bg-[#101A3A] hover:bg-[#172554] text-white font-bold text-xs sm:text-sm shadow-md cursor-pointer">
+                  Sign In with Authorized Google Admin (${BOOTSTRAPPED_ADMIN_EMAIL})
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const totalApps = state.apps.length;
+      const totalGames = state.games.length;
+      const totalCategories = state.categories.length;
+      const activeCount = state.apps.filter(a => a.status === 'active').length + state.games.filter(g => g.status === 'active').length;
+      const inactiveCount = state.apps.filter(a => a.status === 'inactive').length + state.games.filter(g => g.status === 'inactive').length;
+      const totalDownloads = [...state.apps, ...state.games].reduce((s, i) => s + (Number(i.downloads) || 0), 0);
+
+      const navItems = [
+        { id: 'dashboard', label: 'Dashboard' },
+        { id: 'apps', label: `App Management (${totalApps})` },
+        { id: 'games', label: `Games Management (${totalGames})` },
+        { id: 'categories', label: `Categories (${totalCategories})` },
+        { id: 'banners', label: `Banner Management (${state.banners.length})` },
+        { id: 'downloads', label: 'Download Management' },
+        { id: 'analytics', label: 'Download Analytics' },
+        { id: 'settings', label: 'Website Settings' },
+        { id: 'profile', label: 'Admin Profile' },
+      ];
+
+      let mainHtml = '';
+
+      if (state.section === 'dashboard') {
+        const daily = state.analytics.filter(a => a.periodType === 'daily');
+        const topApps = [...state.apps].sort((a, b) => b.downloads - a.downloads).slice(0, 5);
+        const topGames = [...state.games].sort((a, b) => b.downloads - a.downloads).slice(0, 5);
+
+        mainHtml = `
+          <div class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Total Apps</div>
+                <div class="text-3xl font-black text-[#172033] mt-1">${totalApps}</div>
+                <div class="text-xs text-[#16C653] font-semibold mt-1">Live in /apps</div>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Total Games</div>
+                <div class="text-3xl font-black text-[#172033] mt-1">${totalGames}</div>
+                <div class="text-xs text-[#7047EB] font-semibold mt-1">Live in /games</div>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Total Downloads</div>
+                <div class="text-3xl font-black text-[#172033] mt-1">${totalDownloads.toLocaleString()}</div>
+                <div class="text-xs text-sky-600 font-semibold mt-1">Verified Firebase telemetry</div>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Total Categories</div>
+                <div class="text-3xl font-black text-[#172033] mt-1">${totalCategories}</div>
+                <div class="text-xs text-amber-600 font-semibold mt-1">Directory categories</div>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Active Packages</div>
+                <div class="text-3xl font-black text-emerald-600 mt-1">${activeCount}</div>
+                <div class="text-xs text-[#64748B] mt-1">Published on APK Hub</div>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Inactive Packages</div>
+                <div class="text-3xl font-black text-rose-600 mt-1">${inactiveCount}</div>
+                <div class="text-xs text-[#64748B] mt-1">Hidden / Drafts</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <div class="bg-white rounded-3xl p-5 border border-slate-200/80 space-y-3">
+                <div class="flex justify-between items-center">
+                  <h3 class="text-base font-extrabold text-[#172033]">Top Downloaded Apps</h3>
+                  <button onclick="setSection('apps')" class="text-xs font-bold text-[#16C653]">Manage All →</button>
+                </div>
+                ${topApps.map((a, i) => `
+                  <div class="flex items-center justify-between p-3 rounded-2xl bg-[#F4F7FC]">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-black text-[#64748B]">#${i + 1}</span>
+                      <div>
+                        <div class="text-xs sm:text-sm font-extrabold text-[#172033]">${a.name}</div>
+                        <div class="text-[11px] text-[#64748B]">${a.category} · v${a.version}</div>
+                      </div>
+                    </div>
+                    <div class="text-xs sm:text-sm font-extrabold text-[#16C653]">${(a.downloads || 0).toLocaleString()}</div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="bg-white rounded-3xl p-5 border border-slate-200/80 space-y-3">
+                <div class="flex justify-between items-center">
+                  <h3 class="text-base font-extrabold text-[#172033]">Top Downloaded Games</h3>
+                  <button onclick="setSection('games')" class="text-xs font-bold text-[#7047EB]">Manage All →</button>
+                </div>
+                ${topGames.map((g, i) => `
+                  <div class="flex items-center justify-between p-3 rounded-2xl bg-[#F4F7FC]">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-black text-[#64748B]">#${i + 1}</span>
+                      <div>
+                        <div class="text-xs sm:text-sm font-extrabold text-[#172033]">${g.name}</div>
+                        <div class="text-[11px] text-[#64748B]">v${g.version} · ${g.size}</div>
+                      </div>
+                    </div>
+                    <div class="text-xs sm:text-sm font-extrabold text-[#7047EB]">${(g.downloads || 0).toLocaleString()}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (state.section === 'apps' || state.section === 'games') {
+        const isGame = state.section === 'games';
+        const list = isGame ? state.games : state.apps;
+        mainHtml = `
+          <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 class="text-lg font-extrabold text-[#172033]">${isGame ? 'Games Management' : 'Application Management'}</h2>
+                <p class="text-xs text-[#64748B]">Real-time records in Firebase /${isGame ? 'games' : 'apps'}</p>
+              </div>
+              <button onclick="openCreateItem('${isGame ? 'game' : 'app'}')" class="px-4 py-2.5 rounded-xl bg-[#16C653] text-white font-extrabold text-xs sm:text-sm cursor-pointer">
+                + Add New ${isGame ? 'Game' : 'App'}
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse min-w-[700px]">
+                <thead>
+                  <tr class="border-b border-slate-200 text-[11px] font-extrabold uppercase text-[#64748B]">
+                    <th class="py-3 px-3">Name &amp; Package</th>
+                    <th class="py-3 px-3">Category</th>
+                    <th class="py-3 px-3">Version</th>
+                    <th class="py-3 px-3">Size</th>
+                    <th class="py-3 px-3">Downloads</th>
+                    <th class="py-3 px-3">Status</th>
+                    <th class="py-3 px-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                  ${list.map(item => `
+                    <tr>
+                      <td class="py-3 px-3">
+                        <div class="font-extrabold text-[#172033]">${item.name}</div>
+                        <div class="text-[11px] font-mono text-[#64748B]">${item.packageName}</div>
+                      </td>
+                      <td class="py-3 px-3">${item.category}</td>
+                      <td class="py-3 px-3 font-mono">v${item.version}</td>
+                      <td class="py-3 px-3">${item.size}</td>
+                      <td class="py-3 px-3 font-extrabold">${(item.downloads || 0).toLocaleString()}</td>
+                      <td class="py-3 px-3">
+                        <span class="px-2 py-0.5 rounded text-[11px] font-bold ${item.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${item.status}</span>
+                      </td>
+                      <td class="py-3 px-3 text-right space-x-1">
+                        <button onclick="openEditItem('${isGame ? 'game' : 'app'}', '${item.id}')" class="px-2.5 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold">Edit</button>
+                        <button onclick="toggleItemStatus('${isGame ? 'game' : 'app'}', '${item.id}', '${item.status}')" class="px-2.5 py-1 rounded bg-amber-50 text-amber-800 text-xs font-bold">${item.status === 'active' ? 'Deactivate' : 'Activate'}</button>
+                        <button onclick="deleteItemRecord('${isGame ? 'game' : 'app'}', '${item.id}', '${item.name.replace(/'/g, '')}')" class="px-2.5 py-1 rounded bg-red-50 text-red-600 text-xs font-bold">Delete</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (state.section === 'add-app' || state.section === 'edit-app') {
+        const pool = state.editingType === 'game' ? state.games : state.apps;
+        const current = state.editingId ? pool.find(x => x.id === state.editingId) : null;
+        mainHtml = `
+          <div class="bg-white rounded-3xl p-5 sm:p-8 border border-slate-200/80 space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+              <h2 class="text-lg font-extrabold text-[#172033]">${current ? 'Edit ' + current.name : 'Add New ' + (state.editingType === 'game' ? 'Game' : 'Application')}</h2>
+              <button onclick="setSection('${state.editingType === 'game' ? 'games' : 'apps'}')" class="px-3.5 py-2 rounded-xl bg-slate-100 text-xs font-bold">Cancel</button>
+            </div>
+            <form onsubmit="saveAppOrGameForm(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Name *</label>
+                  <input name="name" required value="${current?.name || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Developer *</label>
+                  <input name="developer" required value="${current?.developer || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Package Name *</label>
+                  <input name="packageName" required value="${current?.packageName || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm font-mono" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Category *</label>
+                  <input name="category" required value="${current?.category || (state.editingType === 'game' ? 'Games' : 'Communication')}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Version *</label>
+                  <input name="version" required value="${current?.version || '1.0.0'}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">File Size *</label>
+                  <input name="size" required value="${current?.size || '25.0 MB'}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Min Android *</label>
+                  <input name="minAndroid" required value="${current?.minAndroid || 'Android 6.0+'}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Release Date *</label>
+                  <input name="releaseDate" type="date" required value="${current?.releaseDate || '2026-11-11'}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Status</label>
+                  <select name="status" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm font-semibold">
+                    <option value="active" ${current?.status === 'active' ? 'selected' : ''}>Active</option>
+                    <option value="inactive" ${current?.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Short Description *</label>
+                <input name="shortDescription" required value="${current?.shortDescription || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Full Description *</label>
+                  <textarea name="fullDescription" rows="3" required class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm">${current?.fullDescription || ''}</textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">What's New</label>
+                  <textarea name="whatsNew" rows="3" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm">${current?.whatsNew || ''}</textarea>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <input name="iconUrl" value="${current?.iconUrl || ''}" placeholder="App Icon URL" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs" />
+                <input name="apkFileName" value="${current?.apkFileName || ''}" placeholder="APK File Name (.apk)" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs font-mono" />
+                <input name="apkDownloadUrl" value="${current?.apkDownloadUrl || ''}" placeholder="Direct APK Download URL" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs" />
+                <input name="externalDownloadUrl" value="${current?.externalDownloadUrl || ''}" placeholder="External Mirror URL" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs" />
+              </div>
+              <div class="flex flex-wrap gap-6 pt-2">
+                <label class="inline-flex items-center gap-2 text-xs font-bold"><input type="checkbox" name="featured" ${current?.featured ? 'checked' : ''} /> Featured</label>
+                <label class="inline-flex items-center gap-2 text-xs font-bold"><input type="checkbox" name="trending" ${current?.trending ? 'checked' : ''} /> Trending</label>
+                <label class="inline-flex items-center gap-2 text-xs font-bold"><input type="checkbox" name="downloadEnabled" ${current?.downloadEnabled !== false ? 'checked' : ''} /> Enable Download</label>
+              </div>
+              <button type="submit" class="px-6 py-3 rounded-xl bg-[#16C653] text-white font-extrabold text-sm shadow-lg cursor-pointer">
+                ${current ? 'Update in Firebase' : 'Save to Firebase'}
+              </button>
+            </form>
+          </div>
+        `;
+      } else if (state.section === 'categories') {
+        mainHtml = `
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-3xl p-5 border border-slate-200/80 space-y-4 h-fit">
+              <h2 class="text-base font-extrabold text-[#172033]">Add / Update Category</h2>
+              <form onsubmit="saveCategoryForm(event)" class="space-y-3">
+                <input name="catName" required placeholder="Category Name" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <input name="catIcon" placeholder="Icon Emoji (e.g. 💬) or URL" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <textarea name="catDesc" rows="2" placeholder="Description" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm"></textarea>
+                <select name="catStatus" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm font-semibold">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-[#16C653] text-white font-extrabold text-xs sm:text-sm cursor-pointer">Save Category</button>
+              </form>
+            </div>
+            <div class="lg:col-span-2 bg-white rounded-3xl p-5 border border-slate-200/80 space-y-3">
+              <h2 class="text-base font-extrabold text-[#172033]">Categories (${state.categories.length})</h2>
+              <div class="divide-y divide-slate-100">
+                ${state.categories.map(c => `
+                  <div class="py-3 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <span class="text-lg">${c.iconUrl || '📱'}</span>
+                      <div>
+                        <div class="text-sm font-extrabold text-[#172033]">${c.name}</div>
+                        <div class="text-xs text-[#64748B]">${c.description}</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800">${c.status}</span>
+                      <button onclick="deleteCategoryRecord('${c.id}')" class="px-2.5 py-1 rounded bg-red-50 text-red-600 text-xs font-bold">Delete</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (state.section === 'banners') {
+        mainHtml = `
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-3xl p-5 border border-slate-200/80 space-y-4">
+              <h2 class="text-base font-extrabold text-[#172033]">Add Promotional Banner</h2>
+              <form onsubmit="saveBannerForm(event)" class="space-y-3">
+                <input name="bTitle" required placeholder="Banner Title" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <input name="bSub" placeholder="Subtitle" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <input name="bBtn" placeholder="Button Text (e.g. Download Now)" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <input name="bUrl" placeholder="Destination URL" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <select name="bPos" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm font-semibold">
+                  <option value="hero">Hero Banner</option>
+                  <option value="mid_promo">Mid Promo</option>
+                  <option value="category_top">Category Spotlight</option>
+                  <option value="footer_promo">Footer Promo</option>
+                </select>
+                <select name="bStatus" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm font-semibold">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                <button type="submit" class="w-full py-3 rounded-xl bg-[#16C653] text-white font-extrabold text-sm cursor-pointer">Publish Banner</button>
+              </form>
+            </div>
+            <div class="bg-white rounded-3xl p-5 border border-slate-200/80 space-y-3">
+              <h2 class="text-base font-extrabold text-[#172033]">Published Banners (${state.banners.length})</h2>
+              ${state.banners.map(b => `
+                <div class="p-4 rounded-2xl bg-[#F4F7FC] flex items-center justify-between">
+                  <div>
+                    <div class="font-extrabold text-sm text-[#172033]">${b.title}</div>
+                    <div class="text-xs text-[#64748B]">${b.subtitle} · ${b.position}</div>
+                  </div>
+                  <button onclick="deleteBannerRecord('${b.id}')" class="px-3 py-1.5 rounded-xl bg-red-50 text-red-600 text-xs font-bold">Delete</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (state.section === 'downloads' || state.section === 'analytics') {
+        const allItems = [
+          ...state.apps.map(r => ({ type: 'app', ...r })),
+          ...state.games.map(r => ({ type: 'game', ...r }))
+        ];
+        mainHtml = `
+          <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 space-y-4">
+            <h2 class="text-lg font-extrabold text-[#172033]">Download Management &amp; Analytics</h2>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse min-w-[650px]">
+                <thead>
+                  <tr class="border-b border-slate-200 text-[11px] font-extrabold uppercase text-[#64748B]">
+                    <th class="py-3 px-3">App / Game</th>
+                    <th class="py-3 px-3">Version</th>
+                    <th class="py-3 px-3">APK File</th>
+                    <th class="py-3 px-3">Total Downloads</th>
+                    <th class="py-3 px-3">Status</th>
+                    <th class="py-3 px-3 text-right">Toggle</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                  ${allItems.map(item => `
+                    <tr>
+                      <td class="py-3 px-3 font-extrabold">${item.name}</td>
+                      <td class="py-3 px-3 font-mono">v${item.version}</td>
+                      <td class="py-3 px-3 font-mono text-xs text-[#64748B]">${item.apkFileName}</td>
+                      <td class="py-3 px-3 font-extrabold text-[#16C653]">${(item.downloads || 0).toLocaleString()}</td>
+                      <td class="py-3 px-3">${item.downloadEnabled ? 'Enabled' : 'Disabled'}</td>
+                      <td class="py-3 px-3 text-right">
+                        <button onclick="toggleDownloadSwitch('${item.type}', '${item.id}', ${Boolean(item.downloadEnabled)}, '${item.apkFileName}', '${item.apkDownloadUrl}', '${item.externalDownloadUrl}')" class="px-3 py-1 rounded bg-amber-50 text-amber-800 text-xs font-bold">
+                          ${item.downloadEnabled ? 'Disable' : 'Enable'}
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (state.section === 'settings') {
+        const s = state.settings;
+        mainHtml = `
+          <form onsubmit="saveSettingsForm(event)" class="bg-white rounded-3xl p-5 sm:p-8 border border-slate-200/80 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 class="text-lg font-extrabold text-[#172033]">Website Settings (/websiteSettings/global)</h2>
+              <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#16C653] text-white font-extrabold text-xs sm:text-sm cursor-pointer">Save Settings</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Website Name</label>
+                <input name="websiteName" value="${s.websiteName || 'APK Hub'}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Contact Email</label>
+                <input name="contactEmail" value="${s.contactEmail || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Website Description</label>
+                <input name="websiteDescription" value="${s.websiteDescription || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Footer Text</label>
+                <input name="footerText" value="${s.footerText || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <textarea name="privacyPolicy" rows="3" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs">${s.privacyPolicy || ''}</textarea>
+              <textarea name="termsConditions" rows="3" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs">${s.termsConditions || ''}</textarea>
+              <textarea name="disclaimer" rows="3" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs">${s.disclaimer || ''}</textarea>
+            </div>
+            <div class="flex gap-6 pt-2">
+              <label class="inline-flex items-center gap-2 text-xs font-bold"><input type="checkbox" name="maintenanceMode" ${s.maintenanceMode ? 'checked' : ''} /> Maintenance Mode</label>
+              <label class="inline-flex items-center gap-2 text-xs font-bold"><input type="checkbox" name="directDownloadsEnabled" ${s.directDownloadsEnabled !== false ? 'checked' : ''} /> Enable Direct Downloads</label>
+            </div>
+          </form>
+        `;
+      } else if (state.section === 'profile') {
+        mainHtml = `
+          <div class="bg-white rounded-3xl p-6 border border-slate-200/80 space-y-4 max-w-xl">
+            <h2 class="text-lg font-extrabold text-[#172033]">Admin Profile</h2>
+            <div class="p-4 rounded-2xl bg-[#F4F7FC] space-y-1">
+              <div class="text-sm font-extrabold text-[#172033]">${state.user.displayName || 'APK Hub Super Admin'}</div>
+              <div class="text-xs text-[#64748B]">${state.user.email}</div>
+              <div class="text-xs text-[#16C653] font-bold">Status: Active · Role: Super Admin</div>
+            </div>
+            <button onclick="handleLogoutClick()" class="px-5 py-2.5 rounded-xl bg-red-600 text-white font-extrabold text-xs cursor-pointer">Logout Admin Session</button>
+          </div>
+        `;
+      }
+
+      root.innerHTML = `
+        <div class="min-h-screen bg-[#F4F7FC] text-[#172033] flex flex-col lg:flex-row">
+          ${state.toast ? `
+            <div class="fixed top-4 right-4 z-50 bg-white border border-emerald-300 rounded-2xl p-4 shadow-xl max-w-sm">
+              <div class="text-xs font-extrabold text-[#172033]">${state.toast.title}</div>
+              <div class="text-xs text-[#64748B] mt-0.5">${state.toast.message}</div>
+            </div>
+          ` : ''}
+
+          <aside class="w-full lg:w-72 bg-[#101A3A] text-white p-5 flex flex-col justify-between shrink-0">
+            <div class="space-y-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-[#16C653] text-[#101A3A] font-black text-sm flex items-center justify-center">APK</div>
+                  <div>
+                    <div class="text-base font-extrabold">APK <span class="text-[#16C653]">Hub</span> <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#7047EB]">Admin</span></div>
+                    <div class="text-[11px] text-slate-400">Firebase Realtime Console</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="openCreateItem('app')" class="py-2 px-3 rounded-xl bg-[#16C653] text-[#101A3A] font-extrabold text-xs cursor-pointer">+ Add App</button>
+                <button onclick="openCreateItem('game')" class="py-2 px-3 rounded-xl bg-[#7047EB] text-white font-extrabold text-xs cursor-pointer">+ Add Game</button>
+              </div>
+
+              <nav class="flex lg:flex-col gap-1 overflow-x-auto pb-2 lg:pb-0">
+                ${navItems.map(item => `
+                  <button onclick="setSection('${item.id}')" class="px-3.5 py-2.5 rounded-xl text-xs font-bold text-left whitespace-nowrap cursor-pointer ${state.section === item.id ? 'bg-[#16C653] text-[#101A3A]' : 'text-slate-300 hover:bg-[#172554]'}">
+                    ${item.label}
+                  </button>
+                `).join('')}
+              </nav>
+            </div>
+
+            <div class="hidden lg:block pt-4 border-t border-white/10 space-y-2">
+              <div class="text-xs text-slate-300 truncate">${state.user.email}</div>
+              <button onclick="handleLogoutClick()" class="w-full py-2 rounded-xl bg-red-500/20 text-red-300 font-bold text-xs cursor-pointer">Logout</button>
+            </div>
+          </aside>
+
+          <div class="flex-1 flex flex-col min-w-0">
+            <header class="bg-white border-b border-slate-200/80 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+              <div>
+                <div class="text-sm sm:text-lg font-extrabold capitalize">${state.section.replace('-', ' ')}</div>
+                <div class="text-[11px] text-[#64748B]">Connected to Firebase: <strong>bionic-bebop-t8gvj</strong></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="handleSyncSeed()" class="px-3 py-2 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs font-bold cursor-pointer">Sync DB</button>
+                <button onclick="openCreateItem('app')" class="px-3.5 py-2 rounded-xl bg-[#16C653] text-white font-extrabold text-xs cursor-pointer">+ New APK</button>
+              </div>
+            </header>
+
+            <main class="p-4 sm:p-8 max-w-7xl w-full mx-auto flex-1">
+              ${mainHtml}
+            </main>
+          </div>
+        </div>
+      `;
+    }
+
+    render();
+  </script>
+</body>
+</html>

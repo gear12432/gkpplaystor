@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,1256 +8,1255 @@
   <meta property="og:title" content="APK Hub – Fast &amp; Secure APK Downloader" />
   <meta property="og:description" content="Download your favourite Android apps and games for free with APK Hub. Explore trending APKs, top charts, categories, and verified open-source packages." />
   <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
             mono: ['"JetBrains Mono"', 'monospace'],
           },
         },
       },
     };
   </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "APK Hub – Fast & Secure APK Downloader",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "Android",
-    "description": "Download your favourite Android apps and games for free with APK Hub.",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    }
-  }
-  </script>
 </head>
-<body class="font-sans antialiased min-h-screen flex flex-col bg-[#F5F8FF] dark:bg-[#0B1229] text-[#111827] dark:text-slate-100 transition-colors overflow-x-hidden">
-  <!-- App Root -->
-  <div id="apkhub-root" class="flex-1 flex flex-col"></div>
+<body class="font-sans antialiased min-h-screen bg-[#F4F7FC] text-[#172033]">
+  <div id="app-root" class="min-h-screen flex flex-col"></div>
 
-  <script>
-    // =========================================================================
-    // APK HUB – STANDALONE GITHUB PAGES & STATIC RUNTIME ENGINE
-    // Ensures gear12432.github.io/gkpp works directly from the main branch!
-    // =========================================================================
-    const CATEGORIES = [
-      { id: 'social-media', name: 'Social Media', appCount: 42, gradient: 'from-pink-500 to-rose-600', icon: 'share' },
-      { id: 'games', name: 'Games', appCount: 68, gradient: 'from-purple-600 to-indigo-600', icon: 'game' },
-      { id: 'productivity', name: 'Productivity', appCount: 35, gradient: 'from-blue-500 to-cyan-600', icon: 'briefcase' },
-      { id: 'entertainment', name: 'Entertainment', appCount: 29, gradient: 'from-red-500 to-orange-600', icon: 'film' },
-      { id: 'tools', name: 'Tools', appCount: 54, gradient: 'from-emerald-500 to-teal-600', icon: 'wrench' },
-      { id: 'photography', name: 'Photography', appCount: 24, gradient: 'from-violet-500 to-fuchsia-600', icon: 'camera' },
-      { id: 'education', name: 'Education', appCount: 31, gradient: 'from-amber-500 to-orange-500', icon: 'edu' },
-      { id: 'communication', name: 'Communication', appCount: 39, gradient: 'from-sky-500 to-blue-600', icon: 'chat' },
-      { id: 'music-audio', name: 'Music & Audio', appCount: 27, gradient: 'from-green-500 to-emerald-600', icon: 'music' },
-      { id: 'lifestyle', name: 'Lifestyle', appCount: 19, gradient: 'from-teal-500 to-cyan-600', icon: 'compass' },
-      { id: 'business', name: 'Business', appCount: 22, gradient: 'from-slate-600 to-slate-800', icon: 'building' },
-      { id: 'security', name: 'Security', appCount: 33, gradient: 'from-indigo-600 to-blue-800', icon: 'shield' },
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signInWithEmailAndPassword,
+      signInWithPopup,
+      GoogleAuthProvider,
+      signOut,
+      sendPasswordResetEmail,
+      updatePassword,
+      updateProfile,
+      setPersistence,
+      browserLocalPersistence,
+      browserSessionPersistence
+    } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      getDocFromServer,
+      setDoc,
+      updateDoc,
+      deleteDoc,
+      onSnapshot,
+      serverTimestamp,
+      query,
+      where
+    } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+      projectId: "bionic-bebop-t8gvj",
+      appId: "1:640261110206:web:4f9d06c956934fe38f61ef",
+      apiKey: "AIzaSyA4xR7rsdSw6-Dv4gy11Y3XnJ0BUQtFM6Y",
+      authDomain: "bionic-bebop-t8gvj.firebaseapp.com",
+      firestoreDatabaseId: "ai-studio-apkhubfastsecure-598670a6-205f-4cfa-9c47-0a8e888e271f",
+      storageBucket: "bionic-bebop-t8gvj.firebasestorage.app",
+      messagingSenderId: "640261110206",
+    };
+
+    const BOOTSTRAPPED_ADMIN_EMAIL = "skjiyaul842@gmail.com";
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+    const auth = getAuth(app);
+
+    // Validate Firestore connection on boot
+    getDocFromServer(doc(db, 'test', 'connection')).catch(() => {});
+
+    const DEFAULT_CATEGORIES_SEED = [
+      { id: 'social-media', name: 'Social Media', slug: 'social-media', description: 'Connect, share stories, and message friends globally.', iconUrl: '💬', totalApps: 2, status: 'active' },
+      { id: 'games', name: 'Games', slug: 'games', description: 'Action, battle royale, sandbox, and arcade Android games.', iconUrl: '🎮', totalApps: 4, status: 'active' },
+      { id: 'productivity', name: 'Productivity', slug: 'productivity', description: 'Note taking, document editing, and workflow automation.', iconUrl: '⚡', totalApps: 1, status: 'active' },
+      { id: 'entertainment', name: 'Entertainment', slug: 'entertainment', description: 'Video streaming, media players, and creator platforms.', iconUrl: '🎬', totalApps: 2, status: 'active' },
+      { id: 'tools', name: 'Tools', slug: 'tools', description: 'System utilities, file managers, and open-source clients.', iconUrl: '🛠️', totalApps: 2, status: 'active' },
+      { id: 'photography', name: 'Photography', slug: 'photography', description: 'RAW camera controls, photo editors, and filters.', iconUrl: '📷', totalApps: 1, status: 'active' },
+      { id: 'education', name: 'Education', slug: 'education', description: 'Language learning, coding, and reference dictionaries.', iconUrl: '📚', totalApps: 1, status: 'active' },
+      { id: 'communication', name: 'Communication', slug: 'communication', description: 'Encrypted messengers, browsers, and VoIP calling apps.', iconUrl: '📡', totalApps: 3, status: 'active' },
+      { id: 'music-audio', name: 'Music & Audio', slug: 'music-audio', description: 'Lossless audio players, podcasts, and music streaming.', iconUrl: '🎵', totalApps: 1, status: 'active' },
+      { id: 'lifestyle', name: 'Lifestyle', slug: 'lifestyle', description: 'Daily habits, weather, fitness, and smart home control.', iconUrl: '🌟', totalApps: 1, status: 'active' },
+      { id: 'business', name: 'Business', slug: 'business', description: 'Remote desktop, enterprise team chat, and invoicing.', iconUrl: '💼', totalApps: 1, status: 'active' },
+      { id: 'security', name: 'Security', slug: 'security', description: '2FA authenticators, password managers, and VPN tools.', iconUrl: '🛡️', totalApps: 2, status: 'active' },
     ];
 
-    const APK_ITEMS = [
-      {
-        id: 'whatsapp',
-        slug: 'whatsapp-messenger',
-        name: 'WhatsApp Messenger',
-        developer: 'WhatsApp LLC',
-        version: '2.26.14.78',
-        size: '64.8 MB',
-        category: 'Communication',
-        type: 'app',
-        isTrending: true,
-        isLatest: false,
-        isMostDownloaded: true,
-        isAuthorizedDirectApk: true,
-        securityVerified: true,
-        verificationSource: 'Official WhatsApp Direct Android Package Distribution',
-        verifiedRating: 4.6,
-        verifiedReviewCount: '189M Verified Reviews',
-        verifiedDownloads: '5,000,000,000+',
-        updatedAt: 'November 10, 2026',
-        updatedTimestamp: 1794300000,
-        popularityScore: 99,
-        minAndroid: 'Android 5.0+ (Lollipop, API 21)',
-        packageName: 'com.whatsapp',
-        architecture: 'arm64-v8a, armeabi-v7a, x86_64',
-        sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-        license: 'Freeware (Official Direct Distribution)',
-        officialExternalApkUrl: 'https://www.whatsapp.com/android/',
-        officialWebsiteUrl: 'https://www.whatsapp.com/android',
-        shortDescription: 'Simple, reliable, private messaging and HD voice/video calling across Android devices.',
-        fullDescription: 'WhatsApp Messenger is a free messaging and video calling app used by over 2 billion people in more than 180 countries. WhatsApp publishes an official universal APK installer directly on its website for Android users who prefer direct package installation.',
-        whatsNew: [
-          'Improved HD photo and 4K video sharing compression pipeline',
-          'Passkey sign-in support for instant encrypted backup verification',
-          'Faster multi-device companion synchronization across Android tablets'
-        ],
-        features: [
-          'End-to-end encrypted chats, group threads, and voice/video calls',
-          'Group video calls supporting up to 32 simultaneous participants',
-          'Direct Android APK build signed by WhatsApp LLC official certificate'
-        ],
-        permissions: [
-          { name: 'android.permission.INTERNET', description: 'Send and receive encrypted messages.' },
-          { name: 'android.permission.CAMERA', description: 'Capture photos, scan QR codes, and stream video calls.' },
-          { name: 'android.permission.RECORD_AUDIO', description: 'Record voice notes and voice calls.' }
-        ],
-        bgGradient: 'from-[#25D366] to-[#128C7E]',
-        labelText: 'WA'
-      },
+    const DEFAULT_APPS_SEED = [
       {
         id: 'telegram',
-        slug: 'telegram-android',
+        slug: 'telegram',
         name: 'Telegram',
         developer: 'Telegram FZ-LLC',
+        packageName: 'org.telegram.messenger.web',
+        category: 'Communication',
         version: '11.4.2',
         size: '71.2 MB',
-        category: 'Communication',
-        type: 'app',
-        isTrending: true,
-        isLatest: true,
-        isMostDownloaded: true,
-        isAuthorizedDirectApk: true,
-        securityVerified: true,
-        verificationSource: 'Official Telegram.org Reproducible APK Build (GPLv2)',
-        verifiedRating: 4.7,
-        verifiedReviewCount: '14.2M Verified Reviews',
-        verifiedDownloads: '1,000,000,000+',
-        updatedAt: 'November 11, 2026',
-        updatedTimestamp: 1794386400,
-        popularityScore: 98,
-        minAndroid: 'Android 6.0+ (Marshmallow, API 23)',
-        packageName: 'org.telegram.messenger.web',
-        architecture: 'arm64-v8a, armeabi-v7a, universal',
-        sha256: '8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4',
-        license: 'Open Source Client (GNU GPL v2.0)',
-        officialExternalApkUrl: 'https://telegram.org/dl/android/apk',
-        officialWebsiteUrl: 'https://telegram.org/android',
+        minAndroid: 'Android 6.0+ (API 23)',
+        releaseDate: '2026-11-10',
         shortDescription: 'Fast, cloud-synced messenger with reproducible open-source Android APK builds.',
-        fullDescription: 'Telegram for Android is an officially distributed, reproducible open-source messaging application. The direct APK edition from telegram.org updates automatically, receives faster feature releases, and supports 2 GB file sharing.',
-        whatsNew: [
-          'Direct independent auto-updater for standalone APK installations',
-          'Hardware-accelerated AV1 video playback inside media galleries',
-          'Verified reproducible APK signature matching GitHub commit tree'
-        ],
-        features: [
-          'Unlimited cloud storage for chat history and media up to 2 GB per file',
-          'Secret Chats with self-destructing messages and zero server trace',
-          'Reproducible builds allowing independent security verification'
-        ],
-        permissions: [
-          { name: 'android.permission.INTERNET', description: 'Connect to Telegram distributed MTProto cloud servers.' },
-          { name: 'android.permission.REQUEST_INSTALL_PACKAGES', description: 'Used by official standalone APK to install verified updates.' }
-        ],
-        bgGradient: 'from-[#2AABEE] to-[#229ED9]',
-        labelText: 'TG'
-      },
-      {
-        id: 'instagram',
-        slug: 'instagram',
-        name: 'Instagram',
-        developer: 'Instagram / Meta Platforms',
-        version: '356.1.0.42.90',
-        size: '68.4 MB',
-        category: 'Social Media',
-        type: 'app',
-        isTrending: true,
-        isLatest: false,
-        isMostDownloaded: true,
-        isAuthorizedDirectApk: false,
-        securityVerified: false,
-        verificationSource: null,
-        verifiedRating: null,
-        verifiedReviewCount: null,
-        verifiedDownloads: null,
-        updatedAt: 'November 6, 2026',
-        updatedTimestamp: 1793954400,
-        popularityScore: 96,
-        minAndroid: 'Android 9.0+ (Pie, API 28)',
-        packageName: 'com.instagram.android',
-        architecture: 'arm64-v8a (nodpi)',
-        sha256: null,
-        license: 'Proprietary (Sample UI Catalog Entry)',
-        officialExternalApkUrl: null,
-        officialWebsiteUrl: 'https://www.instagram.com',
-        shortDescription: 'Create and share photos, Reels, Stories, and direct messages with friends and creators.',
-        fullDescription: 'Instagram brings you closer to the people and things you love. Share daily moments on Stories, discover short-form Reels videos, and message friends directly. Listed as a transparent UI preview sample.',
-        whatsNew: [
-          'Ultra HDR photo display support for Android 14 and Android 15 screens',
-          'Multi-track audio mixer for Reels creators'
-        ],
-        features: [
-          'Reels short video editor with beat-synced templates',
-          '24-hour Stories with interactive polls and stickers'
-        ],
-        permissions: [
-          { name: 'android.permission.CAMERA', description: 'Capture Stories, Reels, and live broadcasts.' }
-        ],
-        bgGradient: 'from-[#F58529] via-[#DD2A7B] to-[#8134AF]',
-        labelText: 'IG'
-      },
-      {
-        id: 'youtube',
-        slug: 'youtube',
-        name: 'YouTube',
-        developer: 'Google LLC',
-        version: '19.45.38',
-        size: '112.5 MB',
-        category: 'Entertainment',
-        type: 'app',
-        isTrending: true,
-        isLatest: false,
-        isMostDownloaded: true,
-        isAuthorizedDirectApk: false,
-        securityVerified: false,
-        verificationSource: null,
-        verifiedRating: null,
-        verifiedReviewCount: null,
-        verifiedDownloads: null,
-        updatedAt: 'November 5, 2026',
-        updatedTimestamp: 1793868000,
-        popularityScore: 95,
-        minAndroid: 'Android 8.0+ (Oreo, API 26)',
-        packageName: 'com.google.android.youtube',
-        architecture: 'arm64-v8a',
-        sha256: null,
-        license: 'Proprietary (Sample UI Catalog Entry)',
-        officialExternalApkUrl: null,
-        officialWebsiteUrl: 'https://www.youtube.com',
-        shortDescription: 'Watch 4K HDR videos, Shorts, live streams, and subscribe to global channels.',
-        fullDescription: 'Watch what the world is watching — from music videos and gaming streams to coding tutorials, podcasts, and documentaries. Listed as a UI preview sample; for an authorized open-source client, see NewPipe.',
-        whatsNew: [
-          'Stable volume normalization across all mobile video streams',
-          'Hold-to-2x playback speed gesture on full-screen and portrait player'
-        ],
-        features: [
-          '4K 60fps HDR video streaming with adaptive AV1 bitrate',
-          'Picture-in-Picture (PiP) multitasking support'
-        ],
-        permissions: [
-          { name: 'android.permission.INTERNET', description: 'Stream video and audio content.' }
-        ],
-        bgGradient: 'from-[#FF0000] to-[#CC0000]',
-        labelText: 'YT'
-      },
-      {
-        id: 'snapchat',
-        slug: 'snapchat',
-        name: 'Snapchat',
-        developer: 'Snap Inc',
-        version: '13.14.0.41',
-        size: '84.1 MB',
-        category: 'Social Media',
-        type: 'app',
-        isTrending: true,
-        isLatest: false,
-        isMostDownloaded: false,
-        isAuthorizedDirectApk: false,
-        securityVerified: false,
-        verificationSource: null,
-        verifiedRating: null,
-        verifiedReviewCount: null,
-        verifiedDownloads: null,
-        updatedAt: 'November 3, 2026',
-        updatedTimestamp: 1793695200,
-        popularityScore: 91,
-        minAndroid: 'Android 7.0+ (Nougat, API 24)',
-        packageName: 'com.snapchat.android',
-        architecture: 'arm64-v8a',
-        sha256: null,
-        license: 'Proprietary (Sample UI Catalog Entry)',
-        officialExternalApkUrl: null,
-        officialWebsiteUrl: 'https://www.snapchat.com',
-        shortDescription: 'Opens straight to the camera for instant Snaps, AR Lenses, and Snap Map sharing.',
-        fullDescription: 'Snapchat is a fast and visual way to share the moment with your friends and family with 3D AR Lenses and interactive Snap Map.',
-        whatsNew: [
-          'Camera2 API low-light night mode optimization for Android devices',
-          'Interactive 3D Ray-Traced AR Lenses in Lens Explorer'
-        ],
-        features: [
-          'Instant camera startup with zero-shutter-lag capture',
-          'Interactive Snap Map with public event stories'
-        ],
-        permissions: [
-          { name: 'android.permission.CAMERA', description: 'Capture photos and apply AR Lenses.' }
-        ],
-        bgGradient: 'from-[#FFFC00] to-[#F59E0B]',
-        labelText: 'SC'
-      },
-      {
-        id: 'spotify',
-        slug: 'spotify-music',
-        name: 'Spotify: Music and Podcasts',
-        developer: 'Spotify AB',
-        version: '8.9.92.412',
-        size: '59.3 MB',
-        category: 'Music & Audio',
-        type: 'app',
-        isTrending: true,
-        isLatest: false,
-        isMostDownloaded: true,
-        isAuthorizedDirectApk: false,
-        securityVerified: false,
-        verificationSource: null,
-        verifiedRating: null,
-        verifiedReviewCount: null,
-        verifiedDownloads: null,
-        updatedAt: 'November 4, 2026',
-        updatedTimestamp: 1793781600,
-        popularityScore: 94,
-        minAndroid: 'Android 7.0+ (Nougat, API 24)',
-        packageName: 'com.spotify.music',
-        architecture: 'arm64-v8a',
-        sha256: null,
-        license: 'Proprietary (Sample UI Catalog Entry)',
-        officialExternalApkUrl: null,
-        officialWebsiteUrl: 'https://www.spotify.com',
-        shortDescription: 'Stream millions of songs, curated playlists, audiobooks, and video podcasts.',
-        fullDescription: 'Listen to music and play millions of songs and podcasts for free. Listed as a transparent UI preview sample.',
-        whatsNew: [
-          'Lossless HiFi FLAC audio output support for USB-C DACs',
-          'Time-synced lyrics with offline caching'
-        ],
-        features: [
-          'Discover Weekly and Release Radar personalized mixes',
-          'Real-time time-synced lyrics on millions of tracks'
-        ],
-        permissions: [
-          { name: 'android.permission.INTERNET', description: 'Stream music and podcasts.' }
-        ],
-        bgGradient: 'from-[#1DB954] to-[#15883E]',
-        labelText: 'SP'
+        fullDescription: 'Telegram for Android is an officially distributed, reproducible open-source messaging application supporting 2 GB file transfers, channels, and cloud storage.',
+        whatsNew: 'Direct independent auto-updater for standalone APK installations and hardware-accelerated AV1 video playback.',
+        iconUrl: '',
+        screenshotUrls: [],
+        apkFileName: 'org.telegram.messenger.web-v11.4.2.apk',
+        apkDownloadUrl: 'https://telegram.org/dl/android/apk',
+        externalDownloadUrl: 'https://telegram.org/android',
+        status: 'active',
+        downloadEnabled: true,
+        featured: true,
+        trending: true,
+        downloads: 18420,
+        rating: 4.8,
       },
       {
         id: 'vlc-android',
-        slug: 'vlc-for-android',
+        slug: 'vlc-android',
         name: 'VLC for Android',
-        developer: 'VideoLAN Organization',
-        version: '3.6.4',
-        size: '41.6 MB',
-        category: 'Entertainment',
-        type: 'app',
-        isTrending: false,
-        isLatest: true,
-        isMostDownloaded: true,
-        isAuthorizedDirectApk: true,
-        securityVerified: true,
-        verificationSource: 'VideoLAN Official FTP & F-Droid Verified Build (GPLv2+)',
-        verifiedRating: 4.8,
-        verifiedReviewCount: '2.1M Verified Reviews',
-        verifiedDownloads: '100,000,000+',
-        updatedAt: 'November 11, 2026',
-        updatedTimestamp: 1794382000,
-        popularityScore: 93,
-        minAndroid: 'Android 5.0+ (Lollipop, API 21)',
+        developer: 'VideoLabs',
         packageName: 'org.videolan.vlc',
-        architecture: 'arm64-v8a',
-        sha256: '4a7d1ed414474e4033ac29ccb8653d9b000000001a2b3c4d5e6f7a8b9c0d1e2f',
-        license: 'Open Source (GNU GPLv2+)',
-        officialExternalApkUrl: 'https://f-droid.org/repo/org.videolan.vlc_13050708.apk',
-        officialWebsiteUrl: 'https://www.videolan.org/vlc/download-android.html',
-        shortDescription: 'Free and open-source multimedia player that plays MKV, MP4, FLAC, and network streams.',
-        fullDescription: 'VLC for Android plays any video and audio files, network streams, and DVD ISOs. Completely free and open source under GPLv2, with zero advertisements and zero tracking.',
-        whatsNew: [
-          'Hardware-decoded 10-bit AV1 and HEVC HDR10+ playback engine',
-          'Auto-downloading subtitles via OpenSubtitles REST API v2'
-        ],
-        features: [
-          'Plays MKV, MP4, AVI, MOV, Ogg, FLAC, TS, M2TS, Wv and AAC',
-          '10-band audio equalizer and swipe brightness/volume gestures'
-        ],
-        permissions: [
-          { name: 'android.permission.READ_MEDIA_VIDEO', description: 'Play local video files.' }
-        ],
-        bgGradient: 'from-[#FF8800] to-[#E65100]',
-        labelText: 'VLC'
+        category: 'Entertainment',
+        version: '3.6.3',
+        size: '42.8 MB',
+        minAndroid: 'Android 5.0+ (API 21)',
+        releaseDate: '2026-11-08',
+        shortDescription: 'Free and open-source cross-platform multimedia player for all video and audio codecs.',
+        fullDescription: 'VLC for Android plays most local video and audio files, as well as network streams, DVD ISOs, MKV, MP4, FLAC, and multi-track audio.',
+        whatsNew: 'Improved hardware decoding on Android 15 devices and Picture-in-Picture subtitle rendering.',
+        iconUrl: '',
+        screenshotUrls: [],
+        apkFileName: 'org.videolan.vlc-v3.6.3.apk',
+        apkDownloadUrl: 'https://get.videolan.org/vlc-android/3.6.3/VLC-Android-3.6.3-arm64-v8a.apk',
+        externalDownloadUrl: 'https://www.videolan.org/vlc/download-android.html',
+        status: 'active',
+        downloadEnabled: true,
+        featured: true,
+        trending: true,
+        downloads: 14350,
+        rating: 4.7,
       },
       {
-        id: 'fdroid',
-        slug: 'f-droid',
-        name: 'F-Droid Open Source Store',
-        developer: 'F-Droid Limited',
-        version: '1.21.1',
-        size: '11.4 MB',
-        category: 'Tools',
-        type: 'app',
-        isTrending: false,
-        isLatest: true,
-        isMostDownloaded: true,
-        isAuthorizedDirectApk: true,
-        securityVerified: true,
-        verificationSource: 'Official F-Droid.org PGP & SHA-256 Verified Release',
-        verifiedRating: 4.9,
-        verifiedReviewCount: '480K Verified Community Ratings',
-        verifiedDownloads: '25,000,000+',
-        updatedAt: 'November 11, 2026',
-        updatedTimestamp: 1794385000,
-        popularityScore: 92,
-        minAndroid: 'Android 6.0+ (Marshmallow, API 23)',
-        packageName: 'org.fdroid.fdroid',
-        architecture: 'universal',
-        sha256: 'c0a8b2e74a9e3f5b12d4e89a67c3b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1',
-        license: 'Open Source (GNU GPLv3+)',
-        officialExternalApkUrl: 'https://f-droid.org/F-Droid.apk',
-        officialWebsiteUrl: 'https://f-droid.org',
-        shortDescription: 'Installable catalog of Free and Open Source Software (FOSS) applications for Android.',
-        fullDescription: 'F-Droid is an installable catalogue of FOSS applications for the Android platform compiled directly from audited source code.',
-        whatsNew: [
-          'Unattended background app updates using Android 14 PackageInstaller APIs',
-          'Nearby offline APK sharing over local Wi-Fi Direct'
-        ],
-        features: [
-          '100% Free and Open Source Software built from source code',
-          'Transparent Anti-Feature warnings for trackers'
-        ],
-        permissions: [
-          { name: 'android.permission.REQUEST_INSTALL_PACKAGES', description: 'Install and update open-source APK packages.' }
-        ],
-        bgGradient: 'from-[#1976D2] to-[#0D47A1]',
-        labelText: 'FD'
-      },
-      {
-        id: 'signal',
-        slug: 'signal-private-messenger',
+        id: 'signal-messenger',
+        slug: 'signal-messenger',
         name: 'Signal Private Messenger',
         developer: 'Signal Foundation',
-        version: '7.24.3',
-        size: '78.2 MB',
-        category: 'Security',
-        type: 'app',
-        isTrending: false,
-        isLatest: true,
-        isMostDownloaded: true,
-        isAuthorizedDirectApk: true,
-        securityVerified: true,
-        verificationSource: 'Signal Foundation Official Website APK Distribution (AGPLv3)',
-        verifiedRating: 4.8,
-        verifiedReviewCount: '2.9M Verified Reviews',
-        verifiedDownloads: '100,000,000+',
-        updatedAt: 'November 10, 2026',
-        updatedTimestamp: 1794310000,
-        popularityScore: 90,
-        minAndroid: 'Android 6.0+ (Marshmallow, API 23)',
         packageName: 'org.thoughtcrime.securesms',
-        architecture: 'universal',
-        sha256: '29a4f3b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6',
-        license: 'Open Source (GNU AGPLv3)',
-        officialExternalApkUrl: 'https://signal.org/android/apk/',
-        officialWebsiteUrl: 'https://signal.org/android/apk/',
-        shortDescription: 'State-of-the-art end-to-end encrypted messaging from the non-profit Signal Foundation.',
-        fullDescription: 'Signal is a 501(c)(3) non-profit privacy messenger with an official self-updating website APK distribution.',
-        whatsNew: [
-          'Post-quantum PQXDH cryptographic key agreement enabled for all chats',
-          'Phone number privacy mode with Signal usernames'
-        ],
-        features: [
-          'Open-source Signal Protocol end-to-end encryption',
-          'Works independently without requiring Google Play Services'
-        ],
-        permissions: [
-          { name: 'android.permission.INTERNET', description: 'Send and receive encrypted Signal messages.' }
-        ],
-        bgGradient: 'from-[#3B45FD] to-[#252CE0]',
-        labelText: 'SIG'
-      },
-      {
-        id: 'mindustry',
-        slug: 'mindustry-sandbox-strategy',
-        name: 'Mindustry',
-        developer: 'Anuke',
-        version: '7.0 Build 146',
-        size: '68.9 MB',
-        category: 'Games',
-        type: 'game',
-        isTrending: false,
-        isLatest: true,
-        isMostDownloaded: true,
-        isAuthorizedDirectApk: true,
-        securityVerified: true,
-        verificationSource: 'Official GitHub & F-Droid Open-Source Game Build (GPLv3)',
-        verifiedRating: 4.9,
-        verifiedReviewCount: '142K Verified Reviews',
-        verifiedDownloads: '10,000,000+',
-        updatedAt: 'November 10, 2026',
-        updatedTimestamp: 1794290000,
-        popularityScore: 91,
-        minAndroid: 'Android 5.0+ (Lollipop, API 21)',
-        packageName: 'io.anuke.mindustry',
-        architecture: 'universal',
-        sha256: '55e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6',
-        license: 'Open Source Game (GNU GPLv3)',
-        officialExternalApkUrl: 'https://f-droid.org/repo/io.anuke.mindustry_104600.apk',
-        officialWebsiteUrl: 'https://mindustrygame.github.io',
-        shortDescription: 'Open-ended factory management, conveyor logistics, and tower defense RTS game.',
-        fullDescription: 'Mindustry is a hybrid tower-defense sandbox factory game licensed under GPLv3 with cross-platform multiplayer co-op.',
-        whatsNew: [
-          'Full Erekir planetary campaign with 17 new sectors',
-          '120Hz high refresh-rate rendering support'
-        ],
-        features: [
-          '250+ technology blocks, 35+ drones, mechs, and naval units',
-          'Zero microtransactions and 100% open-source code'
-        ],
-        permissions: [
-          { name: 'android.permission.INTERNET', description: 'Join multiplayer co-op and PvP servers.' }
-        ],
-        bgGradient: 'from-[#F59E0B] to-[#B45309]',
-        labelText: 'MIN'
-      },
-      {
-        id: 'shattered-pixel-dungeon',
-        slug: 'shattered-pixel-dungeon',
-        name: 'Shattered Pixel Dungeon',
-        developer: 'Shattered Pixel',
-        version: '2.5.2',
-        size: '19.4 MB',
-        category: 'Games',
-        type: 'game',
-        isTrending: false,
-        isLatest: true,
-        isMostDownloaded: true,
-        isAuthorizedDirectApk: true,
-        securityVerified: true,
-        verificationSource: 'Official GitHub & F-Droid Release (GPLv3)',
-        verifiedRating: 4.9,
-        verifiedReviewCount: '118K Verified Reviews',
-        verifiedDownloads: '5,000,000+',
-        updatedAt: 'November 9, 2026',
-        updatedTimestamp: 1794200000,
-        popularityScore: 86,
-        minAndroid: 'Android 4.1+ (Jelly Bean, API 16)',
-        packageName: 'com.shatteredpixel.shatteredpixeldungeon',
-        architecture: 'universal',
-        sha256: '66f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7',
-        license: 'Open Source Game (GNU GPLv3)',
-        officialExternalApkUrl: 'https://f-droid.org/repo/com.shatteredpixel.shatteredpixeldungeon_795.apk',
-        officialWebsiteUrl: 'https://shatteredpixel.com',
-        shortDescription: 'Traditional roguelike dungeon crawler RPG with pixel art graphics and deep replayability.',
-        fullDescription: 'Shattered Pixel Dungeon is an open-source roguelike dungeon crawler RPG with five playable heroes and randomized levels.',
-        whatsNew: [
-          'New Trinket alchemy catalyst system with 12 passive run modifiers',
-          'Expanded journal encyclopedia'
-        ],
-        features: [
-          '5 distinct Hero classes with 10 subclasses',
-          'Plays 100% offline with zero ads'
-        ],
-        permissions: [],
-        bgGradient: 'from-[#7C3AED] to-[#4C1D95]',
-        labelText: 'SPD'
-      },
-      {
-        id: 'k9-mail',
-        slug: 'thunderbird-k9-mail',
-        name: 'Thunderbird / K-9 Mail',
-        developer: 'MZLA Technologies (Mozilla)',
-        version: '8.0',
-        size: '16.5 MB',
-        category: 'Productivity',
-        type: 'app',
-        isTrending: false,
-        isLatest: true,
-        isMostDownloaded: false,
-        isAuthorizedDirectApk: true,
-        securityVerified: true,
-        verificationSource: 'Mozilla Thunderbird Official F-Droid & GitHub APK (Apache 2.0)',
-        verifiedRating: 4.8,
-        verifiedReviewCount: '89K Verified Reviews',
-        verifiedDownloads: '10,000,000+',
-        updatedAt: 'November 11, 2026',
-        updatedTimestamp: 1794380000,
-        popularityScore: 85,
-        minAndroid: 'Android 6.0+ (Marshmallow, API 23)',
-        packageName: 'com.fsck.k9',
-        architecture: 'universal',
-        sha256: '11a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2',
-        license: 'Open Source (Apache License 2.0)',
-        officialExternalApkUrl: 'https://f-droid.org/repo/com.fsck.k9_39004.apk',
-        officialWebsiteUrl: 'https://www.thunderbird.net/mobile',
-        shortDescription: 'Open-source multi-account email client supporting IMAP, POP3, and OpenPGP encryption.',
-        fullDescription: 'K-9 Mail (part of Mozilla Thunderbird) is an open-source email client supporting Unified Inbox and OpenPGP encryption.',
-        whatsNew: [
-          'New Thunderbird desktop account QR migration wizard',
-          'Instant IMAP IDLE push notifications'
-        ],
-        features: [
-          'Unified Inbox for unlimited IMAP and POP3 email accounts',
-          'End-to-end OpenPGP encryption'
-        ],
-        permissions: [
-          { name: 'android.permission.INTERNET', description: 'Connect to IMAP/SMTP servers.' }
-        ],
-        bgGradient: 'from-[#0284C7] to-[#1E3A8A]',
-        labelText: 'K9'
+        category: 'Security',
+        version: '7.24.2',
+        size: '68.5 MB',
+        minAndroid: 'Android 6.0+ (API 23)',
+        releaseDate: '2026-11-09',
+        shortDescription: 'State-of-the-art end-to-end encrypted messaging and voice/video calls.',
+        fullDescription: 'Signal uses an advanced open-source end-to-end encryption protocol to keep your conversations private every single time.',
+        whatsNew: 'Post-quantum PQXDH key agreement protocol and username privacy controls.',
+        iconUrl: '',
+        screenshotUrls: [],
+        apkFileName: 'org.thoughtcrime.securesms-v7.24.2.apk',
+        apkDownloadUrl: 'https://signal.org/android/apk/',
+        externalDownloadUrl: 'https://signal.org/android/apk/',
+        status: 'active',
+        downloadEnabled: true,
+        featured: true,
+        trending: true,
+        downloads: 11290,
+        rating: 4.9,
       }
     ];
 
-    const state = {
-      view: 'home', // 'home' | 'apps' | 'games' | 'categories' | 'top-charts' | 'about' | 'contact' | 'legal' | 'details' | 'download'
-      selectedSlug: null,
-      searchQuery: '',
-      selectedCategory: 'All',
-      selectedType: 'all',
-      latestTab: 'latest-apps',
-      mobileMenuOpen: false,
-      theme: localStorage.getItem('apkhub-theme') || 'light',
-      downloadProgress: 0,
-      downloadStatus: 'idle', // 'idle' | 'downloading' | 'completed' | 'error'
-      downloadError: null,
-      contactSubmittedTicket: null,
+    const DEFAULT_GAMES_SEED = [
+      {
+        id: 'minetest-luanti',
+        slug: 'minetest-luanti',
+        name: 'Luanti (Minetest Sandbox)',
+        developer: 'Luanti Open Source Community',
+        packageName: 'net.minetest.minetest',
+        category: 'Games',
+        version: '5.10.0',
+        size: '28.6 MB',
+        minAndroid: 'Android 6.0+ (API 23)',
+        releaseDate: '2026-11-06',
+        shortDescription: 'Infinite-world open-source voxel sandbox game engine with multiplayer servers.',
+        fullDescription: 'Luanti (formerly Minetest) is a near-infinite-world block sandbox game and game engine supporting custom Lua mods and 60fps mobile touch controls.',
+        whatsNew: 'Dynamic shadows on OpenGL ES 3.2 and revamped Android touch joystick.',
+        iconUrl: '',
+        screenshotUrls: [],
+        apkFileName: 'net.minetest.minetest-v5.10.0.apk',
+        apkDownloadUrl: 'https://www.luanti.org/downloads/',
+        externalDownloadUrl: 'https://www.luanti.org',
+        status: 'active',
+        downloadEnabled: true,
+        featured: true,
+        trending: true,
+        downloads: 16200,
+        rating: 4.7,
+      },
+      {
+        id: 'supertuxkart-mobile',
+        slug: 'supertuxkart-mobile',
+        name: 'SuperTuxKart 3D Racing',
+        developer: 'SuperTuxKart Team',
+        packageName: 'org.supertuxkart.stk',
+        category: 'Games',
+        version: '1.4',
+        size: '148.0 MB',
+        minAndroid: 'Android 7.0+ (API 24)',
+        releaseDate: '2026-11-04',
+        shortDescription: '3D open-source arcade kart racer with online multiplayer and story mode.',
+        fullDescription: 'SuperTuxKart is a 3D open-source arcade racer with a variety of characters, tracks, and modes.',
+        whatsNew: 'Vulkan renderer support for Android devices and new battle arenas.',
+        iconUrl: '',
+        screenshotUrls: [],
+        apkFileName: 'org.supertuxkart.stk-v1.4.apk',
+        apkDownloadUrl: 'https://supertuxkart.net/Download',
+        externalDownloadUrl: 'https://supertuxkart.net',
+        status: 'active',
+        downloadEnabled: true,
+        featured: true,
+        trending: true,
+        downloads: 12890,
+        rating: 4.8,
+      }
+    ];
+
+    const DEFAULT_BANNERS_SEED = [
+      { id: 'hero-main-banner', title: 'Fast & Secure APK Downloader', subtitle: 'Download Your Favourite Apps & Games for Android Free!', desktopBannerUrl: '', mobileBannerUrl: '', buttonText: 'Explore Top APKs', destinationUrl: '/apps', position: 'hero', status: 'active' },
+      { id: 'mid-promo-banner', title: 'Get The Latest APK Updates!', subtitle: 'Fast • Safe • Free Verified Packages', desktopBannerUrl: '', mobileBannerUrl: '', buttonText: 'Download Now', destinationUrl: '/top-charts', position: 'mid_promo', status: 'active' }
+    ];
+
+    const DEFAULT_ANALYTICS_SEED = [
+      { id: 'daily-mon', periodType: 'daily', label: 'Mon', downloads: 1240 },
+      { id: 'daily-tue', periodType: 'daily', label: 'Tue', downloads: 1580 },
+      { id: 'daily-wed', periodType: 'daily', label: 'Wed', downloads: 1890 },
+      { id: 'daily-thu', periodType: 'daily', label: 'Thu', downloads: 1720 },
+      { id: 'daily-fri', periodType: 'daily', label: 'Fri', downloads: 2340 },
+      { id: 'daily-sat', periodType: 'daily', label: 'Sat', downloads: 2890 },
+      { id: 'daily-sun', periodType: 'daily', label: 'Sun', downloads: 3120 },
+      { id: 'weekly-w1', periodType: 'weekly', label: 'Week 1', downloads: 9850 },
+      { id: 'weekly-w2', periodType: 'weekly', label: 'Week 2', downloads: 12430 },
+      { id: 'weekly-w3', periodType: 'weekly', label: 'Week 3', downloads: 14120 },
+      { id: 'weekly-w4', periodType: 'weekly', label: 'Week 4', downloads: 16890 },
+      { id: 'monthly-jun', periodType: 'monthly', label: 'Jun', downloads: 38200 },
+      { id: 'monthly-jul', periodType: 'monthly', label: 'Jul', downloads: 44100 },
+      { id: 'monthly-aug', periodType: 'monthly', label: 'Aug', downloads: 51900 },
+      { id: 'monthly-sep', periodType: 'monthly', label: 'Sep', downloads: 58400 },
+      { id: 'monthly-oct', periodType: 'monthly', label: 'Oct', downloads: 64200 },
+      { id: 'monthly-nov', periodType: 'monthly', label: 'Nov', downloads: 72190 }
+    ];
+
+    const DEFAULT_SETTINGS_SEED = {
+      id: 'global',
+      websiteName: 'APK Hub',
+      websiteLogoUrl: '',
+      websiteFaviconUrl: '',
+      websiteDescription: 'Fast & Secure APK Downloader — Download Your Favourite Apps & Games for Android Free!',
+      contactEmail: 'admin@apkhub.store',
+      footerText: '© 2026 APK Hub. Download Unlimited APK • Fast, Safe & Free.',
+      privacyPolicy: 'APK Hub respects user privacy. We do not require user accounts for downloading public APK packages.',
+      termsConditions: 'All applications distributed on APK Hub are verified open-source builds or official developer links.',
+      disclaimer: 'Android, Google Play, and the Google Play logo are trademarks of Google LLC.',
+      facebookUrl: 'https://facebook.com/apkhub',
+      twitterUrl: 'https://x.com/apkhub',
+      telegramUrl: 'https://t.me/apkhub',
+      youtubeUrl: 'https://youtube.com/@apkhub',
+      maintenanceMode: false,
+      directDownloadsEnabled: true,
+      requireChecksumVerification: true,
+      maxDownloadSpeedLabel: 'Unlimited CDN High-Speed',
     };
 
-    if (state.theme === 'dark') {
-      document.documentElement.classList.add('dark');
+    const state = {
+      authChecking: true,
+      user: null,
+      isAuthorizedAdmin: false,
+      authError: '',
+      resetNotice: '',
+      showPassword: false,
+      rememberMe: true,
+      section: window.__INITIAL_ADMIN_SECTION__ || 'dashboard',
+      mobileDrawer: false,
+      apps: [],
+      games: [],
+      categories: [],
+      banners: [],
+      downloadEvents: [],
+      analytics: [],
+      settings: { ...DEFAULT_SETTINGS_SEED },
+      adminProfile: null,
+      editingType: 'app',
+      editingId: null,
+      appSearch: '',
+      appCategoryFilter: 'ALL',
+      appStatusFilter: 'ALL',
+      gameSearch: '',
+      toast: null,
+      previewItem: null,
+    };
+
+    function sanitizeId(raw) {
+      return String(raw || '').trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 120) || ('item-' + Date.now());
     }
 
-    function toggleTheme() {
-      state.theme = state.theme === 'light' ? 'dark' : 'light';
-      localStorage.setItem('apkhub-theme', state.theme);
-      document.documentElement.classList.toggle('dark', state.theme === 'dark');
-      renderApp();
+    function showToast(title, message, type = 'success') {
+      state.toast = { title, message, type };
+      render();
+      setTimeout(() => {
+        state.toast = null;
+        render();
+      }, 4000);
     }
 
-    function navigate(view, options = {}) {
-      state.view = view;
-      state.mobileMenuOpen = false;
-      if (options.slug) state.selectedSlug = options.slug;
-      if (options.category) state.selectedCategory = options.category;
-      if (view === 'download') {
-        state.downloadStatus = 'idle';
-        state.downloadProgress = 0;
-        state.downloadError = null;
+    async function seedDatabase(uid) {
+      try {
+        for (const c of DEFAULT_CATEGORIES_SEED) {
+          await setDoc(doc(db, 'categories', c.id), { ...c, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        }
+        for (const a of DEFAULT_APPS_SEED) {
+          await setDoc(doc(db, 'apps', a.id), { ...a, createdBy: uid, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        }
+        for (const g of DEFAULT_GAMES_SEED) {
+          await setDoc(doc(db, 'games', g.id), { ...g, createdBy: uid, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        }
+        for (const b of DEFAULT_BANNERS_SEED) {
+          await setDoc(doc(db, 'banners', b.id), { ...b, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        }
+        for (const an of DEFAULT_ANALYTICS_SEED) {
+          await setDoc(doc(db, 'analytics', an.id), { ...an, updatedAt: serverTimestamp() });
+        }
+        await setDoc(doc(db, 'websiteSettings', 'global'), { ...DEFAULT_SETTINGS_SEED, updatedAt: serverTimestamp() });
+        showToast('Firebase Synced', 'All APK Hub collections populated in Firestore.');
+      } catch (e) {
+        showToast('Sync Notice', e.message || 'Could not seed database', 'error');
       }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      renderApp();
     }
 
-    async function triggerApkDownload(slug) {
-      const app = APK_ITEMS.find((a) => a.slug === slug);
-      if (!app) return;
-      state.downloadStatus = 'downloading';
-      state.downloadProgress = 0;
-      state.downloadError = null;
-      renderApp();
+    let listenersAttached = false;
+    function attachRealtimeListeners(uid) {
+      if (listenersAttached) return;
+      listenersAttached = true;
+      let autoSeeded = false;
 
-      if (!app.isAuthorizedDirectApk) {
-        await new Promise((r) => setTimeout(r, 350));
-        state.downloadStatus = 'error';
-        state.downloadError = `${app.name} (${app.packageName}) is a proprietary application owned by ${app.developer}. In accordance with copyright compliance, APK Hub does not redistribute unauthorized copyrighted binaries. Please use the official developer website link below or choose a Verified Open-Source APK package.`;
-        renderApp();
+      onSnapshot(query(collection(db, 'apps'), where('status', 'in', ['active', 'inactive'])), (snap) => {
+        state.apps = snap.docs.map(d => d.data());
+        if (state.apps.length === 0 && !autoSeeded) {
+          autoSeeded = true;
+          seedDatabase(uid);
+        }
+        render();
+      });
+
+      onSnapshot(query(collection(db, 'games'), where('status', 'in', ['active', 'inactive'])), (snap) => {
+        state.games = snap.docs.map(d => d.data());
+        render();
+      });
+
+      onSnapshot(query(collection(db, 'categories'), where('status', 'in', ['active', 'inactive'])), (snap) => {
+        state.categories = snap.docs.map(d => d.data());
+        render();
+      });
+
+      onSnapshot(query(collection(db, 'banners'), where('status', 'in', ['active', 'inactive'])), (snap) => {
+        state.banners = snap.docs.map(d => d.data());
+        render();
+      });
+
+      onSnapshot(query(collection(db, 'downloadEvents'), where('targetType', 'in', ['app', 'game'])), (snap) => {
+        state.downloadEvents = snap.docs.map(d => d.data());
+        render();
+      });
+
+      onSnapshot(query(collection(db, 'analytics'), where('periodType', 'in', ['daily', 'weekly', 'monthly'])), (snap) => {
+        state.analytics = snap.docs.map(d => d.data());
+        render();
+      });
+
+      onSnapshot(doc(db, 'websiteSettings', 'global'), (snap) => {
+        if (snap.exists()) {
+          state.settings = snap.data();
+          render();
+        }
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      state.authChecking = true;
+      render();
+      if (!user) {
+        state.user = null;
+        state.isAuthorizedAdmin = false;
+        state.authChecking = false;
+        render();
         return;
       }
 
-      for (let step = 1; step <= 5; step++) {
-        await new Promise((r) => setTimeout(r, 110));
-        state.downloadProgress = step * 20;
-        renderApp();
+      const isBootstrapped = user.email && user.email.toLowerCase() === BOOTSTRAPPED_ADMIN_EMAIL.toLowerCase() && user.emailVerified;
+      let hasAdminDoc = false;
+      try {
+        const snap = await getDoc(doc(db, 'admins', user.uid));
+        hasAdminDoc = snap.exists();
+      } catch {}
+
+      if (!isBootstrapped && !hasAdminDoc) {
+        state.authError = `Access Denied: "${user.email || user.uid}" is not an authorized administrator. Sign in with ${BOOTSTRAPPED_ADMIN_EMAIL}.`;
+        await signOut(auth);
+        state.user = null;
+        state.isAuthorizedAdmin = false;
+        state.authChecking = false;
+        render();
+        return;
       }
 
-      const manifestText = [
-        'Manifest-Version: 1.0',
-        `Package-Name: ${app.packageName}`,
-        `Application-Label: ${app.name}`,
-        `Version-Name: ${app.version}`,
-        `Developer: ${app.developer}`,
-        `Min-Android-SDK: ${app.minAndroid}`,
-        `License: ${app.license}`,
-        `SHA256-Fingerprint: ${app.sha256}`,
-        `Official-Upstream-URL: ${app.officialExternalApkUrl || app.officialWebsiteUrl}`,
-        ''
-      ].join('\r\n');
+      if (isBootstrapped && !hasAdminDoc) {
+        try {
+          await setDoc(doc(db, 'admins', user.uid), {
+            uid: user.uid,
+            email: user.email,
+            role: 'super_admin',
+            createdAt: serverTimestamp()
+          });
+        } catch {}
+      }
 
-      const blob = new Blob([manifestText], { type: 'application/vnd.android.package-archive' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${app.packageName}-v${app.version.replace(/\s+/g, '_')}.apk`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      state.user = user;
+      state.isAuthorizedAdmin = true;
+      state.authChecking = false;
+      attachRealtimeListeners(user.uid);
+      render();
+    });
 
-      state.downloadStatus = 'completed';
-      renderApp();
-    }
+    // Global Event Handlers exposed to window
+    window.setSection = (sec) => {
+      state.section = sec;
+      state.mobileDrawer = false;
+      render();
+    };
 
-    function renderHeader() {
-      const navItems = [
-        { id: 'home', label: 'Home' },
-        { id: 'apps', label: 'Apps' },
-        { id: 'games', label: 'Games' },
-        { id: 'categories', label: 'Categories' },
-        { id: 'top-charts', label: 'Top Charts' },
-        { id: 'about', label: 'About' },
-        { id: 'contact', label: 'Contact' },
-      ];
+    window.toggleDrawer = (open) => {
+      state.mobileDrawer = open;
+      render();
+    };
 
-      return `
-        <header class="sticky top-0 z-40 w-full bg-[#101A3A]/95 dark:bg-[#0B1229]/95 backdrop-blur-md border-b border-white/10 text-white">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
-            <button onclick="navigate('home')" class="flex items-center gap-2.5 whitespace-nowrap shrink-0 cursor-pointer text-left">
-              <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#16C653] to-[#75E85C] flex items-center justify-center text-[#101A3A] font-extrabold text-sm shadow-md">
-                APK
-              </span>
-              <span class="text-xl font-extrabold tracking-tight text-white">
-                APK <span class="text-[#16C653]">Hub</span>
-              </span>
-            </button>
+    window.toggleShowPassword = () => {
+      state.showPassword = !state.showPassword;
+      render();
+    };
 
-            <nav class="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-200">
-              ${navItems.map((item) => `
-                <button onclick="navigate('${item.id}')" class="py-1 transition-colors whitespace-nowrap shrink-0 border-b-2 cursor-pointer ${
-                  state.view === item.id
-                    ? 'text-[#75E85C] border-[#16C653] font-semibold'
-                    : 'border-transparent text-slate-300 hover:text-white'
-                }">
-                  ${item.label}
+    window.handleEmailLoginSubmit = async (e) => {
+      e.preventDefault();
+      state.authError = '';
+      const email = document.getElementById('login-email').value.trim();
+      const pass = document.getElementById('login-password').value;
+      try {
+        await setPersistence(auth, state.rememberMe ? browserLocalPersistence : browserSessionPersistence);
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (err) {
+        state.authError = 'Invalid email/password credentials or Email/Password provider is not yet enabled in Firebase Console. Use the Authorized Google Admin button below or enable Email/Password in Firebase Console.';
+        render();
+      }
+    };
+
+    window.handleGoogleSSO = async () => {
+      state.authError = '';
+      try {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        state.authError = err.message || 'Google Admin sign-in failed.';
+        render();
+      }
+    };
+
+    window.handleForgotPass = async () => {
+      const emailEl = document.getElementById('login-email');
+      const email = emailEl ? emailEl.value.trim() : '';
+      if (!email) {
+        state.authError = 'Enter your admin email address first to receive a password reset link.';
+        render();
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        state.resetNotice = `Password reset link sent to ${email}.`;
+        render();
+      } catch (err) {
+        state.authError = err.message;
+        render();
+      }
+    };
+
+    window.handleLogoutClick = async () => {
+      await signOut(auth);
+    };
+
+    window.handleSyncSeed = () => {
+      if (state.user) seedDatabase(state.user.uid);
+    };
+
+    window.openCreateItem = (type) => {
+      state.editingType = type;
+      state.editingId = null;
+      state.section = 'add-app';
+      render();
+    };
+
+    window.openEditItem = (type, id) => {
+      state.editingType = type;
+      state.editingId = id;
+      state.section = 'edit-app';
+      render();
+    };
+
+    window.saveAppOrGameForm = async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const name = f.elements['name'].value.trim();
+      const developer = f.elements['developer'].value.trim();
+      const packageName = f.elements['packageName'].value.trim();
+      const category = f.elements['category'].value.trim();
+      const version = f.elements['version'].value.trim();
+      const size = f.elements['size'].value.trim();
+      const minAndroid = f.elements['minAndroid'].value.trim();
+      const releaseDate = f.elements['releaseDate'].value.trim();
+      const shortDescription = f.elements['shortDescription'].value.trim();
+      const fullDescription = f.elements['fullDescription'].value.trim();
+      const whatsNew = f.elements['whatsNew'].value.trim() || 'Verified release.';
+      const iconUrl = f.elements['iconUrl'].value.trim();
+      const apkFileName = f.elements['apkFileName'].value.trim() || `${packageName}-v${version}.apk`;
+      const apkDownloadUrl = f.elements['apkDownloadUrl'].value.trim();
+      const externalDownloadUrl = f.elements['externalDownloadUrl'].value.trim();
+      const status = f.elements['status'].value;
+      const featured = f.elements['featured'].checked;
+      const trending = f.elements['trending'].checked;
+      const downloadEnabled = f.elements['downloadEnabled'].checked;
+
+      const id = state.editingId ? sanitizeId(state.editingId) : sanitizeId(name);
+      const col = state.editingType === 'game' ? 'games' : 'apps';
+
+      try {
+        const refDoc = doc(db, col, id);
+        const existingSnap = await getDoc(refDoc);
+        const existing = existingSnap.exists() ? existingSnap.data() : null;
+        await setDoc(refDoc, {
+          id,
+          slug: id,
+          name: name.slice(0, 140),
+          developer: developer.slice(0, 140),
+          packageName: packageName.slice(0, 180),
+          category: category.slice(0, 80),
+          version: version.slice(0, 60),
+          size: size.slice(0, 40),
+          minAndroid: minAndroid.slice(0, 80),
+          releaseDate: releaseDate.slice(0, 60),
+          shortDescription: shortDescription.slice(0, 500),
+          fullDescription: fullDescription.slice(0, 5000),
+          whatsNew: whatsNew.slice(0, 2000),
+          iconUrl: iconUrl.slice(0, 150000),
+          screenshotUrls: existing?.screenshotUrls || [],
+          apkFileName: apkFileName.slice(0, 240),
+          apkDownloadUrl: apkDownloadUrl.slice(0, 2000),
+          externalDownloadUrl: externalDownloadUrl.slice(0, 2000),
+          status,
+          downloadEnabled,
+          featured,
+          trending,
+          downloads: existing?.downloads || 0,
+          rating: existing?.rating || 4.8,
+          createdBy: existing?.createdBy || state.user.uid,
+          createdAt: existing?.createdAt || serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+        showToast('Saved to Firebase', `${name} v${version} saved in /${col}.`);
+        state.section = state.editingType === 'game' ? 'games' : 'apps';
+        render();
+      } catch (err) {
+        showToast('Save Error', err.message, 'error');
+      }
+    };
+
+    window.toggleItemStatus = async (type, id, currentStatus) => {
+      const col = type === 'game' ? 'games' : 'apps';
+      const next = currentStatus === 'active' ? 'inactive' : 'active';
+      try {
+        await updateDoc(doc(db, col, id), { status: next, updatedAt: serverTimestamp() });
+        showToast('Status Updated', `Item status set to ${next}.`);
+      } catch (err) {
+        showToast('Update Error', err.message, 'error');
+      }
+    };
+
+    window.deleteItemRecord = async (type, id, name) => {
+      const col = type === 'game' ? 'games' : 'apps';
+      try {
+        await deleteDoc(doc(db, col, id));
+        showToast('Deleted', `${name} removed from Firebase /${col}.`);
+      } catch (err) {
+        showToast('Delete Error', err.message, 'error');
+      }
+    };
+
+    window.saveCategoryForm = async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const name = f.elements['catName'].value.trim();
+      const iconUrl = f.elements['catIcon'].value.trim() || '📱';
+      const description = f.elements['catDesc'].value.trim();
+      const status = f.elements['catStatus'].value;
+      const id = sanitizeId(name);
+      try {
+        await setDoc(doc(db, 'categories', id), {
+          id,
+          name: name.slice(0, 100),
+          slug: id.slice(0, 100),
+          description: description.slice(0, 600),
+          iconUrl: iconUrl.slice(0, 100000),
+          totalApps: 1,
+          status,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+        showToast('Category Saved', `Category "${name}" saved to Firebase.`);
+        f.reset();
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    window.deleteCategoryRecord = async (id) => {
+      try {
+        await deleteDoc(doc(db, 'categories', id));
+        showToast('Category Deleted', 'Removed from /categories.');
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    window.saveBannerForm = async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const title = f.elements['bTitle'].value.trim();
+      const subtitle = f.elements['bSub'].value.trim();
+      const buttonText = f.elements['bBtn'].value.trim() || 'Download Now';
+      const destinationUrl = f.elements['bUrl'].value.trim() || '/apps';
+      const position = f.elements['bPos'].value;
+      const status = f.elements['bStatus'].value;
+      const id = sanitizeId(title);
+      try {
+        await setDoc(doc(db, 'banners', id), {
+          id,
+          title: title.slice(0, 160),
+          subtitle: subtitle.slice(0, 300),
+          desktopBannerUrl: '',
+          mobileBannerUrl: '',
+          buttonText: buttonText.slice(0, 80),
+          destinationUrl: destinationUrl.slice(0, 1000),
+          position,
+          status,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+        showToast('Banner Saved', `Banner "${title}" published to Firebase.`);
+        f.reset();
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    window.deleteBannerRecord = async (id) => {
+      try {
+        await deleteDoc(doc(db, 'banners', id));
+        showToast('Banner Deleted', 'Removed from /banners.');
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    window.toggleDownloadSwitch = async (type, id, enabled, apkFileName, apkDownloadUrl, externalDownloadUrl) => {
+      const col = type === 'game' ? 'games' : 'apps';
+      try {
+        await updateDoc(doc(db, col, id), {
+          downloadEnabled: !enabled,
+          apkFileName,
+          apkDownloadUrl,
+          externalDownloadUrl,
+          updatedAt: serverTimestamp()
+        });
+        showToast('Download Status Updated', `Downloads ${!enabled ? 'enabled' : 'disabled'}.`);
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    window.saveSettingsForm = async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      try {
+        await setDoc(doc(db, 'websiteSettings', 'global'), {
+          ...state.settings,
+          id: 'global',
+          websiteName: f.elements['websiteName'].value.trim().slice(0, 120),
+          contactEmail: f.elements['contactEmail'].value.trim().slice(0, 256),
+          websiteDescription: f.elements['websiteDescription'].value.trim().slice(0, 1000),
+          footerText: f.elements['footerText'].value.trim().slice(0, 500),
+          privacyPolicy: f.elements['privacyPolicy'].value.trim().slice(0, 10000),
+          termsConditions: f.elements['termsConditions'].value.trim().slice(0, 10000),
+          disclaimer: f.elements['disclaimer'].value.trim().slice(0, 10000),
+          maintenanceMode: f.elements['maintenanceMode'].checked,
+          directDownloadsEnabled: f.elements['directDownloadsEnabled'].checked,
+          updatedAt: serverTimestamp(),
+        });
+        showToast('Settings Saved', 'Global Website Settings updated in Firebase.');
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    };
+
+    function render() {
+      const root = document.getElementById('app-root');
+      if (!root) return;
+
+      if (state.authChecking) {
+        root.innerHTML = `
+          <div class="min-h-screen bg-[#101A3A] text-white flex flex-col items-center justify-center p-6">
+            <div class="w-16 h-16 rounded-2xl bg-[#16C653] text-[#101A3A] flex items-center justify-center font-black text-xl shadow-2xl mb-4">APK</div>
+            <div class="text-lg font-extrabold">APK Hub Enterprise Admin Panel</div>
+            <p class="text-xs text-slate-300 mt-1">Verifying Firebase Admin Authorization...</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (!state.user || !state.isAuthorizedAdmin) {
+        root.innerHTML = `
+          <div class="min-h-screen bg-gradient-to-br from-[#101A3A] via-[#172554] to-[#0B1229] flex items-center justify-center p-4">
+            <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
+              <div class="bg-[#101A3A] px-6 py-7 text-white flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-[#16C653] text-[#101A3A] font-black text-base flex items-center justify-center shadow-lg">APK</div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl font-extrabold">APK <span class="text-[#16C653]">Hub</span></span>
+                    <span class="px-2 py-0.5 rounded bg-[#7047EB] text-[10px] font-bold uppercase">Admin Console</span>
+                  </div>
+                  <p class="text-xs text-slate-300 mt-0.5">Authorized Administrator Portal · Firebase Connected</p>
+                </div>
+              </div>
+              <div class="p-6 sm:p-8 space-y-5">
+                <div>
+                  <h1 class="text-xl font-extrabold text-[#172033]">Admin Sign In</h1>
+                  <p class="text-xs text-[#64748B] mt-1">Sign in with your authorized APK Hub administrator account. Public registration is disabled.</p>
+                </div>
+                ${state.authError ? `<div class="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-900">${state.authError}</div>` : ''}
+                ${state.resetNotice ? `<div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">${state.resetNotice}</div>` : ''}
+                <form onsubmit="handleEmailLoginSubmit(event)" class="space-y-4">
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Admin Email</label>
+                    <input id="login-email" type="email" required placeholder="${BOOTSTRAPPED_ADMIN_EMAIL}" class="w-full px-4 py-3 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Password</label>
+                    <div class="relative">
+                      <input id="login-password" type="${state.showPassword ? 'text' : 'password'}" required placeholder="Enter administrator password" class="w-full px-4 py-3 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                      <button type="button" onclick="toggleShowPassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#64748B]">${state.showPassword ? 'Hide' : 'Show'}</button>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between text-xs">
+                    <label class="inline-flex items-center gap-2 font-semibold">
+                      <input type="checkbox" checked class="rounded" />
+                      <span>Remember me</span>
+                    </label>
+                    <button type="button" onclick="handleForgotPass()" class="font-bold text-[#7047EB] hover:underline">Forgot password?</button>
+                  </div>
+                  <button type="submit" class="w-full py-3.5 rounded-xl bg-[#16C653] hover:bg-[#13b149] text-white font-extrabold text-sm shadow-lg cursor-pointer">Login to Dashboard</button>
+                </form>
+                <div class="relative flex py-1 items-center">
+                  <div class="flex-grow border-t border-slate-200"></div>
+                  <span class="shrink mx-3 text-[11px] font-bold uppercase text-[#64748B]">Or Verified Firebase Admin SSO</span>
+                  <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+                <button type="button" onclick="handleGoogleSSO()" class="w-full py-3 px-4 rounded-xl bg-[#101A3A] hover:bg-[#172554] text-white font-bold text-xs sm:text-sm shadow-md cursor-pointer">
+                  Sign In with Authorized Google Admin (${BOOTSTRAPPED_ADMIN_EMAIL})
                 </button>
-              `).join('')}
-            </nav>
-
-            <div class="flex items-center gap-2.5 shrink-0">
-              <button onclick="toggleTheme()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-colors cursor-pointer">
-                <span>${state.theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}</span>
-              </button>
-              <button onclick="state.mobileMenuOpen = !state.mobileMenuOpen; renderApp();" class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 text-white font-bold cursor-pointer">
-                ☰
-              </button>
+              </div>
             </div>
           </div>
+        `;
+        return;
+      }
 
-          ${state.mobileMenuOpen ? `
-            <div class="lg:hidden bg-[#101A3A] border-t border-white/10 px-4 py-4 space-y-2">
-              <div class="text-xs text-[#75E85C] font-semibold pb-2">APK Hub · Download Unlimited APK</div>
-              ${navItems.map((item) => `
-                <button onclick="navigate('${item.id}')" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold block ${
-                  state.view === item.id ? 'bg-[#16C653] text-[#101A3A]' : 'text-slate-200 hover:bg-white/10'
-                }">
-                  ${item.label}
-                </button>
+      const totalApps = state.apps.length;
+      const totalGames = state.games.length;
+      const totalCategories = state.categories.length;
+      const activeCount = state.apps.filter(a => a.status === 'active').length + state.games.filter(g => g.status === 'active').length;
+      const inactiveCount = state.apps.filter(a => a.status === 'inactive').length + state.games.filter(g => g.status === 'inactive').length;
+      const totalDownloads = [...state.apps, ...state.games].reduce((s, i) => s + (Number(i.downloads) || 0), 0);
+
+      const navItems = [
+        { id: 'dashboard', label: 'Dashboard' },
+        { id: 'apps', label: `App Management (${totalApps})` },
+        { id: 'games', label: `Games Management (${totalGames})` },
+        { id: 'categories', label: `Categories (${totalCategories})` },
+        { id: 'banners', label: `Banner Management (${state.banners.length})` },
+        { id: 'downloads', label: 'Download Management' },
+        { id: 'analytics', label: 'Download Analytics' },
+        { id: 'settings', label: 'Website Settings' },
+        { id: 'profile', label: 'Admin Profile' },
+      ];
+
+      let mainHtml = '';
+
+      if (state.section === 'dashboard') {
+        const daily = state.analytics.filter(a => a.periodType === 'daily');
+        const topApps = [...state.apps].sort((a, b) => b.downloads - a.downloads).slice(0, 5);
+        const topGames = [...state.games].sort((a, b) => b.downloads - a.downloads).slice(0, 5);
+
+        mainHtml = `
+          <div class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Total Apps</div>
+                <div class="text-3xl font-black text-[#172033] mt-1">${totalApps}</div>
+                <div class="text-xs text-[#16C653] font-semibold mt-1">Live in /apps</div>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Total Games</div>
+                <div class="text-3xl font-black text-[#172033] mt-1">${totalGames}</div>
+                <div class="text-xs text-[#7047EB] font-semibold mt-1">Live in /games</div>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Total Downloads</div>
+                <div class="text-3xl font-black text-[#172033] mt-1">${totalDownloads.toLocaleString()}</div>
+                <div class="text-xs text-sky-600 font-semibold mt-1">Verified Firebase telemetry</div>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Total Categories</div>
+                <div class="text-3xl font-black text-[#172033] mt-1">${totalCategories}</div>
+                <div class="text-xs text-amber-600 font-semibold mt-1">Directory categories</div>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Active Packages</div>
+                <div class="text-3xl font-black text-emerald-600 mt-1">${activeCount}</div>
+                <div class="text-xs text-[#64748B] mt-1">Published on APK Hub</div>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                <div class="text-xs font-bold uppercase text-[#64748B]">Inactive Packages</div>
+                <div class="text-3xl font-black text-rose-600 mt-1">${inactiveCount}</div>
+                <div class="text-xs text-[#64748B] mt-1">Hidden / Drafts</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <div class="bg-white rounded-3xl p-5 border border-slate-200/80 space-y-3">
+                <div class="flex justify-between items-center">
+                  <h3 class="text-base font-extrabold text-[#172033]">Top Downloaded Apps</h3>
+                  <button onclick="setSection('apps')" class="text-xs font-bold text-[#16C653]">Manage All →</button>
+                </div>
+                ${topApps.map((a, i) => `
+                  <div class="flex items-center justify-between p-3 rounded-2xl bg-[#F4F7FC]">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-black text-[#64748B]">#${i + 1}</span>
+                      <div>
+                        <div class="text-xs sm:text-sm font-extrabold text-[#172033]">${a.name}</div>
+                        <div class="text-[11px] text-[#64748B]">${a.category} · v${a.version}</div>
+                      </div>
+                    </div>
+                    <div class="text-xs sm:text-sm font-extrabold text-[#16C653]">${(a.downloads || 0).toLocaleString()}</div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="bg-white rounded-3xl p-5 border border-slate-200/80 space-y-3">
+                <div class="flex justify-between items-center">
+                  <h3 class="text-base font-extrabold text-[#172033]">Top Downloaded Games</h3>
+                  <button onclick="setSection('games')" class="text-xs font-bold text-[#7047EB]">Manage All →</button>
+                </div>
+                ${topGames.map((g, i) => `
+                  <div class="flex items-center justify-between p-3 rounded-2xl bg-[#F4F7FC]">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-black text-[#64748B]">#${i + 1}</span>
+                      <div>
+                        <div class="text-xs sm:text-sm font-extrabold text-[#172033]">${g.name}</div>
+                        <div class="text-[11px] text-[#64748B]">v${g.version} · ${g.size}</div>
+                      </div>
+                    </div>
+                    <div class="text-xs sm:text-sm font-extrabold text-[#7047EB]">${(g.downloads || 0).toLocaleString()}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (state.section === 'apps' || state.section === 'games') {
+        const isGame = state.section === 'games';
+        const list = isGame ? state.games : state.apps;
+        mainHtml = `
+          <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 class="text-lg font-extrabold text-[#172033]">${isGame ? 'Games Management' : 'Application Management'}</h2>
+                <p class="text-xs text-[#64748B]">Real-time records in Firebase /${isGame ? 'games' : 'apps'}</p>
+              </div>
+              <button onclick="openCreateItem('${isGame ? 'game' : 'app'}')" class="px-4 py-2.5 rounded-xl bg-[#16C653] text-white font-extrabold text-xs sm:text-sm cursor-pointer">
+                + Add New ${isGame ? 'Game' : 'App'}
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse min-w-[700px]">
+                <thead>
+                  <tr class="border-b border-slate-200 text-[11px] font-extrabold uppercase text-[#64748B]">
+                    <th class="py-3 px-3">Name &amp; Package</th>
+                    <th class="py-3 px-3">Category</th>
+                    <th class="py-3 px-3">Version</th>
+                    <th class="py-3 px-3">Size</th>
+                    <th class="py-3 px-3">Downloads</th>
+                    <th class="py-3 px-3">Status</th>
+                    <th class="py-3 px-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                  ${list.map(item => `
+                    <tr>
+                      <td class="py-3 px-3">
+                        <div class="font-extrabold text-[#172033]">${item.name}</div>
+                        <div class="text-[11px] font-mono text-[#64748B]">${item.packageName}</div>
+                      </td>
+                      <td class="py-3 px-3">${item.category}</td>
+                      <td class="py-3 px-3 font-mono">v${item.version}</td>
+                      <td class="py-3 px-3">${item.size}</td>
+                      <td class="py-3 px-3 font-extrabold">${(item.downloads || 0).toLocaleString()}</td>
+                      <td class="py-3 px-3">
+                        <span class="px-2 py-0.5 rounded text-[11px] font-bold ${item.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${item.status}</span>
+                      </td>
+                      <td class="py-3 px-3 text-right space-x-1">
+                        <button onclick="openEditItem('${isGame ? 'game' : 'app'}', '${item.id}')" class="px-2.5 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold">Edit</button>
+                        <button onclick="toggleItemStatus('${isGame ? 'game' : 'app'}', '${item.id}', '${item.status}')" class="px-2.5 py-1 rounded bg-amber-50 text-amber-800 text-xs font-bold">${item.status === 'active' ? 'Deactivate' : 'Activate'}</button>
+                        <button onclick="deleteItemRecord('${isGame ? 'game' : 'app'}', '${item.id}', '${item.name.replace(/'/g, '')}')" class="px-2.5 py-1 rounded bg-red-50 text-red-600 text-xs font-bold">Delete</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (state.section === 'add-app' || state.section === 'edit-app') {
+        const pool = state.editingType === 'game' ? state.games : state.apps;
+        const current = state.editingId ? pool.find(x => x.id === state.editingId) : null;
+        mainHtml = `
+          <div class="bg-white rounded-3xl p-5 sm:p-8 border border-slate-200/80 space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+              <h2 class="text-lg font-extrabold text-[#172033]">${current ? 'Edit ' + current.name : 'Add New ' + (state.editingType === 'game' ? 'Game' : 'Application')}</h2>
+              <button onclick="setSection('${state.editingType === 'game' ? 'games' : 'apps'}')" class="px-3.5 py-2 rounded-xl bg-slate-100 text-xs font-bold">Cancel</button>
+            </div>
+            <form onsubmit="saveAppOrGameForm(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Name *</label>
+                  <input name="name" required value="${current?.name || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Developer *</label>
+                  <input name="developer" required value="${current?.developer || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Package Name *</label>
+                  <input name="packageName" required value="${current?.packageName || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm font-mono" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Category *</label>
+                  <input name="category" required value="${current?.category || (state.editingType === 'game' ? 'Games' : 'Communication')}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Version *</label>
+                  <input name="version" required value="${current?.version || '1.0.0'}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">File Size *</label>
+                  <input name="size" required value="${current?.size || '25.0 MB'}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Min Android *</label>
+                  <input name="minAndroid" required value="${current?.minAndroid || 'Android 6.0+'}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Release Date *</label>
+                  <input name="releaseDate" type="date" required value="${current?.releaseDate || '2026-11-11'}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Status</label>
+                  <select name="status" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm font-semibold">
+                    <option value="active" ${current?.status === 'active' ? 'selected' : ''}>Active</option>
+                    <option value="inactive" ${current?.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Short Description *</label>
+                <input name="shortDescription" required value="${current?.shortDescription || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Full Description *</label>
+                  <textarea name="fullDescription" rows="3" required class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm">${current?.fullDescription || ''}</textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">What's New</label>
+                  <textarea name="whatsNew" rows="3" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm">${current?.whatsNew || ''}</textarea>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <input name="iconUrl" value="${current?.iconUrl || ''}" placeholder="App Icon URL" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs" />
+                <input name="apkFileName" value="${current?.apkFileName || ''}" placeholder="APK File Name (.apk)" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs font-mono" />
+                <input name="apkDownloadUrl" value="${current?.apkDownloadUrl || ''}" placeholder="Direct APK Download URL" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs" />
+                <input name="externalDownloadUrl" value="${current?.externalDownloadUrl || ''}" placeholder="External Mirror URL" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs" />
+              </div>
+              <div class="flex flex-wrap gap-6 pt-2">
+                <label class="inline-flex items-center gap-2 text-xs font-bold"><input type="checkbox" name="featured" ${current?.featured ? 'checked' : ''} /> Featured</label>
+                <label class="inline-flex items-center gap-2 text-xs font-bold"><input type="checkbox" name="trending" ${current?.trending ? 'checked' : ''} /> Trending</label>
+                <label class="inline-flex items-center gap-2 text-xs font-bold"><input type="checkbox" name="downloadEnabled" ${current?.downloadEnabled !== false ? 'checked' : ''} /> Enable Download</label>
+              </div>
+              <button type="submit" class="px-6 py-3 rounded-xl bg-[#16C653] text-white font-extrabold text-sm shadow-lg cursor-pointer">
+                ${current ? 'Update in Firebase' : 'Save to Firebase'}
+              </button>
+            </form>
+          </div>
+        `;
+      } else if (state.section === 'categories') {
+        mainHtml = `
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-3xl p-5 border border-slate-200/80 space-y-4 h-fit">
+              <h2 class="text-base font-extrabold text-[#172033]">Add / Update Category</h2>
+              <form onsubmit="saveCategoryForm(event)" class="space-y-3">
+                <input name="catName" required placeholder="Category Name" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <input name="catIcon" placeholder="Icon Emoji (e.g. 💬) or URL" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <textarea name="catDesc" rows="2" placeholder="Description" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm"></textarea>
+                <select name="catStatus" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm font-semibold">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-[#16C653] text-white font-extrabold text-xs sm:text-sm cursor-pointer">Save Category</button>
+              </form>
+            </div>
+            <div class="lg:col-span-2 bg-white rounded-3xl p-5 border border-slate-200/80 space-y-3">
+              <h2 class="text-base font-extrabold text-[#172033]">Categories (${state.categories.length})</h2>
+              <div class="divide-y divide-slate-100">
+                ${state.categories.map(c => `
+                  <div class="py-3 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <span class="text-lg">${c.iconUrl || '📱'}</span>
+                      <div>
+                        <div class="text-sm font-extrabold text-[#172033]">${c.name}</div>
+                        <div class="text-xs text-[#64748B]">${c.description}</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800">${c.status}</span>
+                      <button onclick="deleteCategoryRecord('${c.id}')" class="px-2.5 py-1 rounded bg-red-50 text-red-600 text-xs font-bold">Delete</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (state.section === 'banners') {
+        mainHtml = `
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-3xl p-5 border border-slate-200/80 space-y-4">
+              <h2 class="text-base font-extrabold text-[#172033]">Add Promotional Banner</h2>
+              <form onsubmit="saveBannerForm(event)" class="space-y-3">
+                <input name="bTitle" required placeholder="Banner Title" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <input name="bSub" placeholder="Subtitle" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <input name="bBtn" placeholder="Button Text (e.g. Download Now)" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <input name="bUrl" placeholder="Destination URL" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+                <select name="bPos" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm font-semibold">
+                  <option value="hero">Hero Banner</option>
+                  <option value="mid_promo">Mid Promo</option>
+                  <option value="category_top">Category Spotlight</option>
+                  <option value="footer_promo">Footer Promo</option>
+                </select>
+                <select name="bStatus" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm font-semibold">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                <button type="submit" class="w-full py-3 rounded-xl bg-[#16C653] text-white font-extrabold text-sm cursor-pointer">Publish Banner</button>
+              </form>
+            </div>
+            <div class="bg-white rounded-3xl p-5 border border-slate-200/80 space-y-3">
+              <h2 class="text-base font-extrabold text-[#172033]">Published Banners (${state.banners.length})</h2>
+              ${state.banners.map(b => `
+                <div class="p-4 rounded-2xl bg-[#F4F7FC] flex items-center justify-between">
+                  <div>
+                    <div class="font-extrabold text-sm text-[#172033]">${b.title}</div>
+                    <div class="text-xs text-[#64748B]">${b.subtitle} · ${b.position}</div>
+                  </div>
+                  <button onclick="deleteBannerRecord('${b.id}')" class="px-3 py-1.5 rounded-xl bg-red-50 text-red-600 text-xs font-bold">Delete</button>
+                </div>
               `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (state.section === 'downloads' || state.section === 'analytics') {
+        const allItems = [
+          ...state.apps.map(r => ({ type: 'app', ...r })),
+          ...state.games.map(r => ({ type: 'game', ...r }))
+        ];
+        mainHtml = `
+          <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 space-y-4">
+            <h2 class="text-lg font-extrabold text-[#172033]">Download Management &amp; Analytics</h2>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse min-w-[650px]">
+                <thead>
+                  <tr class="border-b border-slate-200 text-[11px] font-extrabold uppercase text-[#64748B]">
+                    <th class="py-3 px-3">App / Game</th>
+                    <th class="py-3 px-3">Version</th>
+                    <th class="py-3 px-3">APK File</th>
+                    <th class="py-3 px-3">Total Downloads</th>
+                    <th class="py-3 px-3">Status</th>
+                    <th class="py-3 px-3 text-right">Toggle</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                  ${allItems.map(item => `
+                    <tr>
+                      <td class="py-3 px-3 font-extrabold">${item.name}</td>
+                      <td class="py-3 px-3 font-mono">v${item.version}</td>
+                      <td class="py-3 px-3 font-mono text-xs text-[#64748B]">${item.apkFileName}</td>
+                      <td class="py-3 px-3 font-extrabold text-[#16C653]">${(item.downloads || 0).toLocaleString()}</td>
+                      <td class="py-3 px-3">${item.downloadEnabled ? 'Enabled' : 'Disabled'}</td>
+                      <td class="py-3 px-3 text-right">
+                        <button onclick="toggleDownloadSwitch('${item.type}', '${item.id}', ${Boolean(item.downloadEnabled)}, '${item.apkFileName}', '${item.apkDownloadUrl}', '${item.externalDownloadUrl}')" class="px-3 py-1 rounded bg-amber-50 text-amber-800 text-xs font-bold">
+                          ${item.downloadEnabled ? 'Disable' : 'Enable'}
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (state.section === 'settings') {
+        const s = state.settings;
+        mainHtml = `
+          <form onsubmit="saveSettingsForm(event)" class="bg-white rounded-3xl p-5 sm:p-8 border border-slate-200/80 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 class="text-lg font-extrabold text-[#172033]">Website Settings (/websiteSettings/global)</h2>
+              <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#16C653] text-white font-extrabold text-xs sm:text-sm cursor-pointer">Save Settings</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Website Name</label>
+                <input name="websiteName" value="${s.websiteName || 'APK Hub'}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Contact Email</label>
+                <input name="contactEmail" value="${s.contactEmail || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Website Description</label>
+                <input name="websiteDescription" value="${s.websiteDescription || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold uppercase text-[#64748B] mb-1">Footer Text</label>
+                <input name="footerText" value="${s.footerText || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-sm" />
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <textarea name="privacyPolicy" rows="3" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs">${s.privacyPolicy || ''}</textarea>
+              <textarea name="termsConditions" rows="3" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs">${s.termsConditions || ''}</textarea>
+              <textarea name="disclaimer" rows="3" class="px-3.5 py-2.5 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs">${s.disclaimer || ''}</textarea>
+            </div>
+            <div class="flex gap-6 pt-2">
+              <label class="inline-flex items-center gap-2 text-xs font-bold"><input type="checkbox" name="maintenanceMode" ${s.maintenanceMode ? 'checked' : ''} /> Maintenance Mode</label>
+              <label class="inline-flex items-center gap-2 text-xs font-bold"><input type="checkbox" name="directDownloadsEnabled" ${s.directDownloadsEnabled !== false ? 'checked' : ''} /> Enable Direct Downloads</label>
+            </div>
+          </form>
+        `;
+      } else if (state.section === 'profile') {
+        mainHtml = `
+          <div class="bg-white rounded-3xl p-6 border border-slate-200/80 space-y-4 max-w-xl">
+            <h2 class="text-lg font-extrabold text-[#172033]">Admin Profile</h2>
+            <div class="p-4 rounded-2xl bg-[#F4F7FC] space-y-1">
+              <div class="text-sm font-extrabold text-[#172033]">${state.user.displayName || 'APK Hub Super Admin'}</div>
+              <div class="text-xs text-[#64748B]">${state.user.email}</div>
+              <div class="text-xs text-[#16C653] font-bold">Status: Active · Role: Super Admin</div>
+            </div>
+            <button onclick="handleLogoutClick()" class="px-5 py-2.5 rounded-xl bg-red-600 text-white font-extrabold text-xs cursor-pointer">Logout Admin Session</button>
+          </div>
+        `;
+      }
+
+      root.innerHTML = `
+        <div class="min-h-screen bg-[#F4F7FC] text-[#172033] flex flex-col lg:flex-row">
+          ${state.toast ? `
+            <div class="fixed top-4 right-4 z-50 bg-white border border-emerald-300 rounded-2xl p-4 shadow-xl max-w-sm">
+              <div class="text-xs font-extrabold text-[#172033]">${state.toast.title}</div>
+              <div class="text-xs text-[#64748B] mt-0.5">${state.toast.message}</div>
             </div>
           ` : ''}
-        </header>
-      `;
-    }
 
-    function renderAppCard(app) {
-      return `
-        <div class="group bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-2xl p-4 flex flex-col justify-between transition-transform duration-150 hover:-translate-y-0.5 hover:border-[#16C653]">
-          <div>
-            <button onclick="navigate('details', { slug: '${app.slug}' })" class="w-full flex flex-col items-center text-center cursor-pointer">
-              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br ${app.bgGradient} text-white font-extrabold text-lg flex items-center justify-center shadow-md mb-3">
-                ${app.labelText}
-              </div>
-              <h3 class="text-sm sm:text-base font-bold text-[#111827] dark:text-white line-clamp-1 group-hover:text-[#16C653]">
-                ${app.name}
-              </h3>
-            </button>
-            <div class="mt-1.5 text-center text-xs text-[#64748B] dark:text-slate-300 tabular-nums">
-              v${app.version} · ${app.size}
-            </div>
-            <div class="mt-1.5 text-center text-xs tabular-nums">
-              ${app.verifiedRating ? `<span class="text-amber-500 font-bold">★ ${app.verifiedRating}</span> · <span class="text-emerald-600 dark:text-[#75E85C] font-medium">Verified</span>` : `<span class="text-[11px] text-[#64748B] dark:text-slate-400">${app.category} · Preview</span>`}
-            </div>
-          </div>
-          <div class="mt-3.5 pt-3 border-t border-slate-100 dark:border-white/10">
-            <button onclick="navigate('download', { slug: '${app.slug}' })" class="w-full py-2 px-3 rounded-xl bg-[#16C653] hover:bg-[#13b149] text-white dark:text-[#0B1229] font-bold text-xs cursor-pointer">
-              Download APK
-            </button>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderLatestCard(app) {
-      return `
-        <div class="bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-4 hover:border-[#16C653] transition-colors">
-          <div class="flex items-start gap-4">
-            <button onclick="navigate('details', { slug: '${app.slug}' })" class="w-14 h-14 rounded-2xl bg-gradient-to-br ${app.bgGradient} text-white font-extrabold text-base flex items-center justify-center shrink-0 shadow-md cursor-pointer">
-              ${app.labelText}
-            </button>
-            <div class="min-w-0 flex-1">
-              <button onclick="navigate('details', { slug: '${app.slug}' })" class="text-base font-bold text-[#111827] dark:text-white hover:text-[#16C653] truncate block text-left cursor-pointer">
-                ${app.name}
-              </button>
-              <div class="mt-1 text-xs text-[#64748B] dark:text-slate-300 tabular-nums">
-                ${app.category} · v${app.version} · ${app.size}
-              </div>
-              <p class="mt-2 text-xs sm:text-sm text-[#64748B] dark:text-slate-300 line-clamp-2">
-                ${app.shortDescription}
-              </p>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between gap-2">
-            <span class="text-xs ${app.isAuthorizedDirectApk ? 'text-emerald-600 dark:text-[#75E85C] font-semibold' : 'text-[#64748B] dark:text-slate-400'}">
-              ${app.isAuthorizedDirectApk ? '✓ Authorized Direct APK' : 'UI Sample · ' + app.developer}
-            </span>
-            <div class="flex items-center gap-2">
-              <button onclick="navigate('details', { slug: '${app.slug}' })" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#111827] dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 cursor-pointer">
-                Details
-              </button>
-              <button onclick="navigate('download', { slug: '${app.slug}' })" class="px-3.5 py-2 rounded-xl bg-[#16C653] hover:bg-[#13b149] text-white dark:text-[#0B1229] font-bold text-xs cursor-pointer">
-                Download
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderHomeView() {
-      const trending = APK_ITEMS.filter((a) => a.isTrending);
-      const q = state.searchQuery.trim().toLowerCase();
-      const filtered = APK_ITEMS.filter((a) => {
-        const matchQ = !q || a.name.toLowerCase().includes(q) || a.category.toLowerCase().includes(q) || a.developer.toLowerCase().includes(q);
-        const matchCat = state.selectedCategory === 'All' || a.category === state.selectedCategory;
-        return matchQ && matchCat;
-      });
-
-      const tabItems = APK_ITEMS.filter((a) => {
-        if (state.latestTab === 'latest-games') return a.type === 'game';
-        if (state.latestTab === 'most-downloaded') return a.isMostDownloaded;
-        return true;
-      }).slice(0, 6);
-
-      return `
-        <!-- Top Search Bar Section -->
-        <section class="relative bg-gradient-to-br from-[#101A3A] via-[#172554] to-[#6829E8] text-white py-6 sm:py-8">
-          <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center bg-white dark:bg-[#0F172A] rounded-2xl p-1.5 shadow-2xl border-2 border-white/20">
-              <input
-                id="hero-search-input"
-                type="text"
-                value="${state.searchQuery.replace(/"/g, '&quot;')}"
-                oninput="state.searchQuery = this.value; renderApp(); document.getElementById('hero-search-input').focus();"
-                placeholder="Search APK by app name, game, category, or developer..."
-                class="w-full px-4 py-3 text-sm sm:text-base text-[#111827] dark:text-white bg-transparent focus:outline-none"
-              />
-              ${state.searchQuery ? `
-                <button onclick="state.searchQuery = ''; renderApp();" class="px-3 text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
-              ` : ''}
-              <button onclick="document.getElementById('trending-sec').scrollIntoView({behavior:'smooth'})" class="px-5 py-3 rounded-xl bg-gradient-to-r from-[#16C653] to-[#75E85C] text-[#101A3A] font-extrabold text-sm cursor-pointer">
-                Search
-              </button>
-            </div>
-          </div>
-        </section>
-
-        ${state.searchQuery ? `
-          <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
-            <div class="flex items-center justify-between mb-4">
-              <h2 class="text-xl font-extrabold">Search Results (${filtered.length})</h2>
-              <button onclick="state.searchQuery = ''; renderApp();" class="text-xs font-bold text-[#16C653] cursor-pointer">Clear Search</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              ${filtered.length > 0 ? filtered.map(renderLatestCard).join('') : `<div class="col-span-3 p-8 text-center bg-white dark:bg-[#152046] rounded-2xl">No matching APK found for "${state.searchQuery}".</div>`}
-            </div>
-          </section>
-        ` : ''}
-
-        <!-- Trending APK Apps -->
-        <section id="trending-sec" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <h2 class="text-xl sm:text-2xl font-extrabold">🔥 Trending APK Apps</h2>
-              <p class="text-xs sm:text-sm text-[#64748B] dark:text-slate-300 mt-1">Most popular Android applications this week</p>
-            </div>
-            <button onclick="navigate('apps')" class="px-4 py-2 rounded-xl bg-white dark:bg-[#152046] border border-slate-200 dark:border-white/10 text-xs font-bold cursor-pointer">
-              See All →
-            </button>
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            ${trending.map(renderAppCard).join('')}
-          </div>
-        </section>
-
-        <!-- Promotional Banner -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
-          <div class="rounded-3xl bg-gradient-to-r from-[#16C653] via-[#12A846] to-[#0E8738] text-white p-6 sm:p-10 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="space-y-2 text-center md:text-left">
-              <h2 class="text-2xl sm:text-3xl font-extrabold">Get The Latest APK Updates!</h2>
-              <p class="text-base font-bold text-[#101A3A]">Fast • Safe • Free</p>
-              <p class="text-sm text-white/95 max-w-xl">Download verified open-source Android releases and standalone installers with SHA-256 integrity checks.</p>
-            </div>
-            <button onclick="navigate('apps')" class="px-6 py-3.5 rounded-2xl bg-[#101A3A] hover:bg-[#172554] text-white font-extrabold text-sm shadow-lg shrink-0 cursor-pointer">
-              🚀 Download Now
-            </button>
-          </div>
-        </section>
-
-        <!-- Popular Categories -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl sm:text-2xl font-extrabold">Popular Categories</h2>
-            <button onclick="navigate('categories')" class="text-xs font-bold text-[#16C653] cursor-pointer">All 12 Categories →</button>
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
-            ${CATEGORIES.map((cat) => `
-              <button onclick="navigate('categories', { category: '${cat.name}' })" class="text-left bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-2xl p-4 hover:border-[#16C653] transition-all cursor-pointer">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${cat.gradient} text-white font-bold flex items-center justify-center mb-3">
-                  ${cat.name.slice(0, 2).toUpperCase()}
-                </div>
-                <div class="text-sm font-bold text-[#111827] dark:text-white">${cat.name}</div>
-                <div class="text-xs text-[#64748B] dark:text-slate-400 mt-0.5">${cat.appCount} Apps</div>
-              </button>
-            `).join('')}
-          </div>
-        </section>
-
-        <!-- Latest Apps & Games -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
-          <div class="flex items-center justify-between mb-5">
-            <h2 class="text-xl sm:text-2xl font-extrabold">Latest Apps &amp; Games</h2>
-            <button onclick="navigate('apps')" class="text-xs font-bold text-[#16C653] cursor-pointer">See All →</button>
-          </div>
-          <div class="flex gap-2 mb-6 overflow-x-auto pb-1">
-            ${[
-              { id: 'latest-apps', label: 'Latest Apps' },
-              { id: 'latest-games', label: 'Latest Games' },
-              { id: 'most-downloaded', label: 'Most Downloaded' },
-              { id: 'recently-updated', label: 'Recently Updated' }
-            ].map((t) => `
-              <button onclick="state.latestTab = '${t.id}'; renderApp();" class="px-4 py-2 rounded-xl text-xs font-bold cursor-pointer whitespace-nowrap ${
-                state.latestTab === t.id ? 'bg-[#16C653] text-white dark:text-[#0B1229]' : 'bg-white dark:bg-[#152046] text-[#64748B] dark:text-slate-300'
-              }">
-                ${t.label}
-              </button>
-            `).join('')}
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            ${tabItems.map(renderLatestCard).join('')}
-          </div>
-        </section>
-      `;
-    }
-
-    function renderUnifiedAppDetailsAndDownloadView() {
-      const app = APK_ITEMS.find((a) => a.slug === state.selectedSlug) || APK_ITEMS[0];
-      const portraitScreens = [
-        { tag: 'Home UI', title: app.name + ' Dashboard', caption: 'Fast, responsive native Android interface', bgFrom: '#101A3A', bgTo: '#1E293B', barWidth: 80 },
-        { tag: 'Core Feature', title: 'High-Speed Engine', caption: 'Optimized for Android phones and tablets', bgFrom: '#172554', bgTo: '#0F172A', barWidth: 92 },
-        { tag: 'Controls', title: 'Custom Settings', caption: 'Granular privacy and media controls', bgFrom: '#1E1B4B', bgTo: '#0F172A', barWidth: 74 },
-        { tag: 'v' + app.version, title: 'Verified Build', caption: 'Supports ' + app.minAndroid, bgFrom: '#064E3B', bgTo: '#0F172A', barWidth: 100 },
-      ];
-
-      return `
-        <div class="max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-5">
-          <!-- Top Back Icon Only (Bold Clear Black Color, No Extra Text) -->
-          <div>
-            <button onclick="navigate('home')" aria-label="Back" class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white dark:bg-[#152046] border border-slate-300 dark:border-white/20 text-[#000000] dark:text-white shadow-xs hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5"></path>
-                <path d="M12 19l-7-7 7-7"></path>
-              </svg>
-            </button>
-          </div>
-
-          <!-- 1. App Header + Right-Side Download Button + Single-Line Scrollable Feature Image & Screenshots -->
-          <section class="bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-3xl p-4 sm:p-8 shadow-xs space-y-5">
-            <!-- Top Row: App Logo + App Name & Developer Name + Right-Side Download Button -->
-            <div class="flex items-start gap-3 sm:gap-5">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shrink-0 bg-gradient-to-br ${app.bgGradient} text-white font-extrabold text-xl sm:text-2xl flex items-center justify-center shadow-lg relative overflow-hidden">
-                <span>${app.labelText}</span>
-                <span class="absolute bottom-1 right-1.5 text-[9px] font-bold uppercase opacity-70">APK</span>
-              </div>
-
-              <div class="min-w-0 flex-1 space-y-1">
-                <div class="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#16C653] dark:text-[#75E85C]">
-                  <span>${app.category}</span>
-                  <span>·</span>
-                  <span class="tabular-nums">v${app.version}</span>
-                  <span>·</span>
-                  <span class="tabular-nums">${app.size}</span>
-                </div>
-
-                <!-- App Name + Right-Side Download Button Row -->
-                <div class="flex items-center justify-between gap-2">
-                  <div class="min-w-0 flex-1">
-                    <h1 class="text-lg sm:text-2xl font-extrabold text-[#111827] dark:text-white tracking-tight leading-tight truncate">
-                      ${app.name}
-                    </h1>
-                    <div class="text-xs sm:text-sm font-semibold text-[#64748B] dark:text-slate-300 truncate mt-0.5">
-                      ${app.developer}
-                    </div>
-                  </div>
-
-                  <button onclick="triggerApkDownload('${app.slug}')" class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-[#16C653] hover:bg-[#13b149] text-white dark:text-[#0B1229] dark:bg-[#16C653] dark:hover:bg-[#75E85C] font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer whitespace-nowrap">
-                    <span>⬇</span>
-                    <span>${state.downloadStatus === 'downloading' ? `${state.downloadProgress}%` : state.downloadStatus === 'completed' ? 'Downloaded' : 'Download'}</span>
-                  </button>
-                </div>
-
-                <div class="pt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] sm:text-xs text-[#64748B] dark:text-slate-300 tabular-nums">
-                  ${app.verifiedRating ? `<span class="font-bold text-amber-500">★ ${app.verifiedRating}</span>` : ''}
-                  <span>${app.minAndroid}</span>
-                  ${app.securityVerified ? `<span class="text-emerald-600 dark:text-[#75E85C] font-semibold">✓ Verified APK</span>` : ''}
-                </div>
-              </div>
-            </div>
-
-            ${state.downloadStatus === 'downloading' || state.downloadStatus === 'completed' ? `
-              <div class="space-y-1.5 pt-1">
-                <div class="w-full h-2.5 bg-slate-100 dark:bg-[#0B1229] rounded-full overflow-hidden">
-                  <div class="h-full bg-gradient-to-r from-[#16C653] to-[#75E85C] transition-all" style="width: ${state.downloadProgress}%"></div>
-                </div>
-                <div class="flex items-center justify-between text-xs font-mono text-[#64748B] dark:text-slate-300">
-                  <span>${state.downloadStatus === 'completed' ? `✓ Download Complete (${app.packageName}-v${app.version}.apk)` : 'Downloading APK package...'}</span>
-                  <span>${state.downloadProgress}%</span>
-                </div>
-              </div>
-            ` : ''}
-
-            ${state.downloadStatus === 'error' && state.downloadError ? `
-              <div class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-950 dark:text-amber-100 leading-relaxed">
-                <strong>Official Source Notice:</strong> ${state.downloadError}
-              </div>
-            ` : ''}
-
-            <!-- 2. Single-Row Horizontal Scroll: App Feature Image + 4 App Screenshot Images (Right-to-Left Scroll) -->
-            <div class="space-y-2.5 pt-3 border-t border-slate-100 dark:border-white/10">
+          <aside class="w-full lg:w-72 bg-[#101A3A] text-white p-5 flex flex-col justify-between shrink-0">
+            <div class="space-y-5">
               <div class="flex items-center justify-between">
-                <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#64748B] dark:text-slate-300">
-                  App Feature &amp; Screenshots
-                </h2>
-                <span class="text-[11px] font-semibold text-[#16C653] dark:text-[#75E85C]">
-                  Swipe ← →
-                </span>
-              </div>
-
-              <div class="flex items-stretch gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-1 px-1">
-                <!-- Item 1: Wide App Feature Graphic Card -->
-                <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r ${app.bgGradient} p-4 sm:p-5 text-white shadow-md w-[255px] sm:w-[320px] h-[205px] sm:h-[230px] shrink-0 snap-start flex flex-col justify-between border border-slate-200/40 dark:border-white/15">
-                  <div class="absolute inset-0 bg-gradient-to-r from-[#101A3A]/85 via-[#101A3A]/55 to-transparent pointer-events-none"></div>
-                  <div class="relative z-10 flex items-center justify-between gap-2">
-                    <span class="text-[10px] font-mono uppercase tracking-wider text-[#75E85C] font-bold">
-                      Featured · v${app.version}
-                    </span>
-                    <span class="px-2 py-0.5 rounded-md bg-white/15 text-[10px] font-bold text-white">
-                      ${app.size}
-                    </span>
-                  </div>
-
-                  <div class="relative z-10 space-y-1.5 my-auto py-1">
-                    <div class="text-base sm:text-lg font-extrabold text-white leading-snug">
-                      ${app.name} — Official Android Package
-                    </div>
-                    <p class="text-xs text-slate-200 line-clamp-2 leading-relaxed">
-                      ${app.shortDescription}
-                    </p>
-                  </div>
-
-                  <div class="relative z-10 pt-2 border-t border-white/15 flex items-center justify-between text-[10px] text-white/80 font-semibold">
-                    <span>✓ Verified Signature</span>
-                    <span>Feature Graphic</span>
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-[#16C653] text-[#101A3A] font-black text-sm flex items-center justify-center">APK</div>
+                  <div>
+                    <div class="text-base font-extrabold">APK <span class="text-[#16C653]">Hub</span> <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#7047EB]">Admin</span></div>
+                    <div class="text-[11px] text-slate-400">Firebase Realtime Console</div>
                   </div>
                 </div>
+              </div>
 
-                <!-- Items 2–5: 4 Portrait App Screenshot Cards in the Same Horizontal Line -->
-                ${portraitScreens.map((sc, idx) => `
-                  <div class="rounded-2xl p-3.5 w-[140px] sm:w-[160px] h-[205px] sm:h-[230px] shrink-0 snap-start border border-slate-200 dark:border-white/15 shadow-sm flex flex-col justify-between text-white" style="background: linear-gradient(160deg, ${sc.bgFrom} 0%, ${sc.bgTo} 100%);">
-                    <div class="flex items-center justify-between text-[10px] text-white/70 font-mono pb-1.5 border-b border-white/10">
-                      <span>9:41</span>
-                      <span class="px-1.5 py-0.5 rounded bg-white/10 text-[9px] text-[#75E85C] truncate max-w-[78px]">${sc.tag}</span>
-                    </div>
-                    <div class="my-1.5 space-y-1.5 flex-1 flex flex-col justify-center">
-                      <div class="w-8 h-8 rounded-xl bg-gradient-to-br ${app.bgGradient} flex items-center justify-center text-white text-[11px] font-extrabold shadow">
-                        ${app.labelText}
-                      </div>
-                      <div class="text-xs font-extrabold text-white leading-snug line-clamp-1">${sc.title}</div>
-                      <p class="text-[10px] text-slate-300 leading-snug line-clamp-2">${sc.caption}</p>
-                      <div class="space-y-1 pt-0.5">
-                        <div class="h-1.5 w-full rounded-full bg-white/15 overflow-hidden">
-                          <div class="h-full rounded-full bg-[#16C653]" style="width: ${sc.barWidth}%"></div>
-                        </div>
-                        <div class="h-1.5 w-2/3 rounded-full bg-white/10"></div>
-                      </div>
-                    </div>
-                    <div class="pt-1.5 border-t border-white/10 flex items-center justify-between text-[9px] text-white/60">
-                      <span>Screen 0${idx + 1}</span>
-                      <span>HD</span>
-                    </div>
-                  </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="openCreateItem('app')" class="py-2 px-3 rounded-xl bg-[#16C653] text-[#101A3A] font-extrabold text-xs cursor-pointer">+ Add App</button>
+                <button onclick="openCreateItem('game')" class="py-2 px-3 rounded-xl bg-[#7047EB] text-white font-extrabold text-xs cursor-pointer">+ Add Game</button>
+              </div>
+
+              <nav class="flex lg:flex-col gap-1 overflow-x-auto pb-2 lg:pb-0">
+                ${navItems.map(item => `
+                  <button onclick="setSection('${item.id}')" class="px-3.5 py-2.5 rounded-xl text-xs font-bold text-left whitespace-nowrap cursor-pointer ${state.section === item.id ? 'bg-[#16C653] text-[#101A3A]' : 'text-slate-300 hover:bg-[#172554]'}">
+                    ${item.label}
+                  </button>
                 `).join('')}
+              </nav>
+            </div>
+
+            <div class="hidden lg:block pt-4 border-t border-white/10 space-y-2">
+              <div class="text-xs text-slate-300 truncate">${state.user.email}</div>
+              <button onclick="handleLogoutClick()" class="w-full py-2 rounded-xl bg-red-500/20 text-red-300 font-bold text-xs cursor-pointer">Logout</button>
+            </div>
+          </aside>
+
+          <div class="flex-1 flex flex-col min-w-0">
+            <header class="bg-white border-b border-slate-200/80 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+              <div>
+                <div class="text-sm sm:text-lg font-extrabold capitalize">${state.section.replace('-', ' ')}</div>
+                <div class="text-[11px] text-[#64748B]">Connected to Firebase: <strong>bionic-bebop-t8gvj</strong></div>
               </div>
-            </div>
-          </section>
-
-          <!-- 3. About This App (Short Description + Long Description + What's New) -->
-          <section class="bg-white dark:bg-[#152046] border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 sm:p-8 space-y-5 shadow-xs">
-            <div>
-              <h2 class="text-lg sm:text-xl font-extrabold text-[#111827] dark:text-white">
-                About ${app.name}
-              </h2>
-              <p class="text-xs text-[#64748B] dark:text-slate-400 mt-0.5">
-                Updated ${app.updatedAt} · Developed by ${app.developer}
-              </p>
-            </div>
-
-            <p class="text-sm sm:text-base font-semibold text-[#111827] dark:text-slate-100 leading-relaxed">
-              ${app.shortDescription}
-            </p>
-
-            <p class="text-sm sm:text-base text-[#64748B] dark:text-slate-300 leading-relaxed">
-              ${app.fullDescription}
-            </p>
-
-            <div class="pt-3 border-t border-slate-100 dark:border-white/10 space-y-2.5">
-              <h3 class="text-sm sm:text-base font-extrabold text-[#111827] dark:text-white">
-                What's New in v${app.version}
-              </h3>
-              <ul class="space-y-1.5 text-xs sm:text-sm text-[#64748B] dark:text-slate-300">
-                ${(app.whatsNew || []).map((w) => `
-                  <li class="flex items-start gap-2">
-                    <span class="text-[#16C653] font-bold">•</span>
-                    <span>${w}</span>
-                  </li>
-                `).join('')}
-              </ul>
-            </div>
-          </section>
-        </div>
-      `;
-    }
-
-    function renderDetailsView() {
-      return renderUnifiedAppDetailsAndDownloadView();
-    }
-
-    function renderDownloadView() {
-      return renderUnifiedAppDetailsAndDownloadView();
-    }
-
-    function renderDirectoryView(title, filterFn) {
-      const items = APK_ITEMS.filter(filterFn);
-      return `
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-          <div class="bg-gradient-to-r from-[#101A3A] to-[#6829E8] rounded-3xl p-8 text-white">
-            <h1 class="text-2xl sm:text-3xl font-extrabold">${title}</h1>
-            <p class="text-sm text-slate-200 mt-1">Showing ${items.length} Android packages</p>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            ${items.map(renderLatestCard).join('')}
-          </div>
-        </div>
-      `;
-    }
-
-    function renderAboutView() {
-      return `
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-          <div class="bg-gradient-to-r from-[#101A3A] to-[#6829E8] rounded-3xl p-8 text-white">
-            <h1 class="text-2xl sm:text-3xl font-extrabold">About APK Hub</h1>
-            <p class="text-sm text-slate-200 mt-2">Fast, transparent Android APK discovery with SHA-256 verification and zero login requirements.</p>
-          </div>
-          <div class="bg-white dark:bg-[#152046] rounded-3xl p-6 sm:p-8 space-y-4 text-sm text-[#64748B] dark:text-slate-300 leading-relaxed">
-            <p>APK Hub indexes authorized open-source Android applications and official standalone installers with full package metadata, minimum Android version requirements, and cryptographic checksum transparency.</p>
-            <p>No user registration, login, or account is ever required to browse or download available packages.</p>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderContactView() {
-      return `
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-          <div class="bg-gradient-to-r from-[#101A3A] to-[#6829E8] rounded-3xl p-8 text-white">
-            <h1 class="text-2xl sm:text-3xl font-extrabold">Contact APK Hub</h1>
-            <p class="text-sm text-slate-200 mt-1">Send us a message without creating an account.</p>
-          </div>
-          <div class="bg-white dark:bg-[#152046] rounded-3xl p-6 sm:p-8">
-            ${state.contactSubmittedTicket ? `
-              <div class="text-center py-6 space-y-3">
-                <div class="text-lg font-extrabold text-[#16C653]">✓ Message Received (${state.contactSubmittedTicket})</div>
-                <p class="text-xs text-[#64748B] dark:text-slate-300">Thank you for contacting APK Hub. Our team will respond shortly.</p>
-                <button onclick="state.contactSubmittedTicket = null; renderApp();" class="px-4 py-2 rounded-xl bg-[#16C653] text-white text-xs font-bold cursor-pointer">Send Another</button>
+              <div class="flex items-center gap-2">
+                <button onclick="handleSyncSeed()" class="px-3 py-2 rounded-xl bg-[#F4F7FC] border border-slate-200 text-xs font-bold cursor-pointer">Sync DB</button>
+                <button onclick="openCreateItem('app')" class="px-3.5 py-2 rounded-xl bg-[#16C653] text-white font-extrabold text-xs cursor-pointer">+ New APK</button>
               </div>
-            ` : `
-              <form onsubmit="event.preventDefault(); state.contactSubmittedTicket = 'APKHUB-' + Math.floor(100000 + Math.random() * 900000); renderApp();" class="space-y-4">
-                <div>
-                  <label class="block text-xs font-bold mb-1">Name *</label>
-                  <input required type="text" placeholder="Your Name" class="w-full px-4 py-3 rounded-xl bg-[#F5F8FF] dark:bg-[#0B1229] border border-slate-200 dark:border-white/10 text-sm" />
-                </div>
-                <div>
-                  <label class="block text-xs font-bold mb-1">Email *</label>
-                  <input required type="email" placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl bg-[#F5F8FF] dark:bg-[#0B1229] border border-slate-200 dark:border-white/10 text-sm" />
-                </div>
-                <div>
-                  <label class="block text-xs font-bold mb-1">Subject *</label>
-                  <input required type="text" placeholder="Subject" class="w-full px-4 py-3 rounded-xl bg-[#F5F8FF] dark:bg-[#0B1229] border border-slate-200 dark:border-white/10 text-sm" />
-                </div>
-                <div>
-                  <label class="block text-xs font-bold mb-1">Message *</label>
-                  <textarea required rows="4" placeholder="Your message..." class="w-full px-4 py-3 rounded-xl bg-[#F5F8FF] dark:bg-[#0B1229] border border-slate-200 dark:border-white/10 text-sm"></textarea>
-                </div>
-                <button type="submit" class="px-6 py-3 rounded-xl bg-[#16C653] text-white dark:text-[#0B1229] font-extrabold text-sm cursor-pointer">Submit Message</button>
-              </form>
-            `}
+            </header>
+
+            <main class="p-4 sm:p-8 max-w-7xl w-full mx-auto flex-1">
+              ${mainHtml}
+            </main>
           </div>
         </div>
       `;
     }
 
-    function renderFooter() {
-      return `
-        <footer class="bg-[#101A3A] text-slate-300 border-t border-white/10 mt-16">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-            <div>
-              <span class="font-extrabold text-white text-sm">APK <span class="text-[#16C653]">Hub</span></span> · Download Unlimited APK · Fast &amp; Secure
-            </div>
-            <div class="flex flex-wrap gap-4">
-              <button onclick="navigate('home')" class="hover:text-[#75E85C] cursor-pointer">Home</button>
-              <button onclick="navigate('apps')" class="hover:text-[#75E85C] cursor-pointer">Apps</button>
-              <button onclick="navigate('games')" class="hover:text-[#75E85C] cursor-pointer">Games</button>
-              <button onclick="navigate('top-charts')" class="hover:text-[#75E85C] cursor-pointer">Top Charts</button>
-              <button onclick="navigate('about')" class="hover:text-[#75E85C] cursor-pointer">About</button>
-              <button onclick="navigate('contact')" class="hover:text-[#75E85C] cursor-pointer">Contact</button>
-            </div>
-          </div>
-        </footer>
-      `;
-    }
-
-    function renderApp() {
-      const root = document.getElementById('apkhub-root');
-      if (!root) return;
-      let content = '';
-      if (state.view === 'home') content = renderHomeView();
-      else if (state.view === 'apps') content = renderDirectoryView('Android Applications Catalog', (a) => a.type === 'app');
-      else if (state.view === 'games') content = renderDirectoryView('Android Games Catalog', (a) => a.type === 'game');
-      else if (state.view === 'categories') content = renderDirectoryView(state.selectedCategory === 'All' ? 'All APK Categories' : state.selectedCategory + ' APKs', (a) => state.selectedCategory === 'All' || a.category === state.selectedCategory);
-      else if (state.view === 'top-charts') content = renderDirectoryView('Top Charts & Most Downloaded APKs', () => true);
-      else if (state.view === 'details') content = renderDetailsView();
-      else if (state.view === 'download') content = renderDownloadView();
-      else if (state.view === 'about') content = renderAboutView();
-      else if (state.view === 'contact') content = renderContactView();
-      else content = renderHomeView();
-
-      root.innerHTML = renderHeader() + '<main class="flex-1">' + content + '</main>' + renderFooter();
-    }
-
-    // Automatically route subpaths on GitHub Pages (e.g., /gkpp/apps, /gkpp/games)
-    (function initRouteFromPath() {
-      const path = (window.location.pathname || '').toLowerCase();
-      if (path.endsWith('/apps')) state.view = 'apps';
-      else if (path.endsWith('/games')) state.view = 'games';
-      else if (path.endsWith('/categories')) state.view = 'categories';
-      else if (path.endsWith('/top-charts')) state.view = 'top-charts';
-      else if (path.endsWith('/about')) state.view = 'about';
-      else if (path.endsWith('/contact')) state.view = 'contact';
-    })();
-
-    renderApp();
+    render();
   </script>
 </body>
 </html>
