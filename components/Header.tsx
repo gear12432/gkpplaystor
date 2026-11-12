@@ -18,11 +18,13 @@ import {
   Info,
   Mail,
   ShieldCheck,
+  Calculator,
 } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 
 const NAV_LINKS = [
   { href: '/', label: 'Home', icon: Home },
+  { href: '/calculator', label: 'Citizen Calculator', icon: Calculator },
   { href: '/apps', label: 'Apps', icon: LayoutGrid },
   { href: '/games', label: 'Games', icon: Gamepad2 },
   { href: '/categories', label: 'Categories', icon: FolderKanban },
@@ -79,8 +81,16 @@ export function Header() {
             })}
           </nav>
 
-          {/* Zone 3: Admin Panel Switch, Theme Toggle & Mobile Menu Trigger */}
+          {/* Zone 3: Citizen Calculator, Admin Panel Switch, Theme Toggle & Mobile Menu Trigger */}
           <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/calculator"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#16C653] hover:bg-[#13b149] text-xs font-extrabold text-[#101A3A] transition-colors whitespace-nowrap shrink-0 shadow-sm"
+            >
+              <Calculator className="w-3.5 h-3.5" />
+              <span>Calculator</span>
+            </Link>
+
             <Link
               href="/admin"
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#7047EB] hover:bg-[#5f37d4] text-xs font-extrabold text-white transition-colors whitespace-nowrap shrink-0 shadow-sm"

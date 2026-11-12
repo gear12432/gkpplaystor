@@ -431,8 +431,16 @@
       mode: startInAdminMode ? 'admin' : 'public',
       darkMode: false,
 
-      // Public Website state
-      publicView: 'home', // 'home' | 'apps' | 'games' | 'categories' | 'top-charts' | 'about' | 'contact' | 'details'
+      // Public Website & Citizen Calculator state
+      publicView: 'calculator', // 'calculator' | 'home' | 'apps' | 'games' | 'categories' | 'top-charts' | 'about' | 'contact' | 'details'
+      calcExpr: '',
+      calcShowGst: false,
+      calcGstNote: '',
+      calcShowTape: false,
+      calcShowHistory: false,
+      calcHistory: [
+        { expr: '3+32+32+63+658+32+325+3256+3256+325+322+32+714+100+250+500', result: '9900', count: 16 }
+      ],
       selectedSlug: 'telegram',
       publicSearch: '',
       publicCategory: 'ALL',
@@ -503,6 +511,51 @@
         state.toast = null;
         render();
       }, 4000);
+    }
+
+    // Unlimited-Length Citizen Calculator Live Evaluator (No 14-number limit!)
+    function evaluateCitizenLive(raw) {
+      const clean = String(raw || '').replace(/\s+/g, '');
+      const matches = clean.match(/([+\-×÷*/]?)\s*(\d+(?:\.\d+)?|\.\d+)/g) || [];
+      const terms = matches.map((m, i) => {
+        const fc = m[0];
+        const hasOp = ['+', '-', '×', '÷', '*', '/'].includes(fc);
+        return {
+          index: i + 1,
+          op: hasOp ? fc.replace('*', '×').replace('/', '÷') : (i === 0 ? '' : '+'),
+          val: hasOp ? m.slice(1) : m
+        };
+      });
+
+      if (!clean) return { result: '0', num: 0, count: 0, terms: [] };
+
+      let expr = clean
+        .replace(/×/g, '*')
+        .replace(/÷/g, '/')
+        .replace(/−/g, '-')
+        .replace(/(\d+(?:\.\d+)?)%/g, '($1*0.01)');
+
+      while (/[+\-*/.(]$/.test(expr)) {
+        expr = expr.slice(0, -1);
+      }
+      if (!expr) return { result: '0', num: 0, count: terms.length, terms };
+
+      const openC = (expr.match(/\(/g) || []).length;
+      const closeC = (expr.match(/\)/g) || []).length;
+      if (openC > closeC) expr += ')'.repeat(openC - closeC);
+
+      if (!/^[0-9+\-*/().\s]+$/.test(expr)) {
+        return { result: '0', num: 0, count: terms.length, terms };
+      }
+
+      try {
+        const v = Function('"use strict"; return (' + expr + ');')();
+        if (typeof v === 'number' && Number.isFinite(v)) {
+          const rounded = Number(Math.round(Number(v + 'e10')) + 'e-10');
+          return { result: String(rounded), num: rounded, count: terms.length, terms };
+        }
+      } catch {}
+      return { result: '0', num: 0, count: terms.length, terms };
     }
 
     function getActivePublicCatalog() {
@@ -755,6 +808,112 @@
             render();
           }
         }, 120);
+      },
+
+      // Citizen Calculator Unlimited Actions
+      calcDigit(d) {
+        state.calcGstNote = '';
+        state.calcExpr += String(d);
+        render();
+        const box = document.getElementById('calc-expr-box');
+        if (box) { box.scrollTop = box.scrollHeight; box.scrollLeft = box.scrollWidth; }
+      },
+      calcOp(op) {
+        state.calcGstNote = '';
+        if (!state.calcExpr) {
+          if (op === '-') state.calcExpr = '-';
+          render();
+          return;
+        }
+        if (/[+\-×÷]$/.test(state.calcExpr)) {
+          state.calcExpr = state.calcExpr.slice(0, -1) + op;
+        } else {
+          state.calcExpr += op;
+        }
+        render();
+      },
+      calcDot() {
+        state.calcGstNote = '';
+        const parts = state.calcExpr.split(/[+\-×÷()]/);
+        const cur = parts[parts.length - 1] || '';
+        if (cur.includes('.')) return;
+        state.calcExpr += cur ? '.' : '0.';
+        render();
+      },
+      calcParen() {
+        state.calcGstNote = '';
+        const openC = (state.calcExpr.match(/\(/g) || []).length;
+        const closeC = (state.calcExpr.match(/\)/g) || []).length;
+        const last = state.calcExpr.slice(-1);
+        if (openC > closeC && /[0-9)%]/.test(last)) {
+          state.calcExpr += ')';
+        } else if (/[0-9)]/.test(last)) {
+          state.calcExpr += '×(';
+        } else {
+          state.calcExpr += '(';
+        }
+        render();
+      },
+      calcPercent() {
+        if (!state.calcExpr || /[+\-×÷(%]$/.test(state.calcExpr)) return;
+        state.calcExpr += '%';
+        render();
+      },
+      calcPlusMinus() {
+        if (!state.calcExpr) { state.calcExpr = '-'; render(); return; }
+        if (state.calcExpr === '-') { state.calcExpr = ''; render(); return; }
+        const m = state.calcExpr.match(/(\d+(?:\.\d+)?)$/);
+        if (!m) return;
+        const num = m[1];
+        const pref = state.calcExpr.slice(0, state.calcExpr.length - num.length);
+        state.calcExpr = pref.endsWith('(-') ? pref.slice(0, -2) + num : pref + '(-' + num;
+        render();
+      },
+      calcBack() {
+        state.calcGstNote = '';
+        state.calcExpr = state.calcExpr.slice(0, -1);
+        render();
+      },
+      calcClear() {
+        state.calcGstNote = '';
+        state.calcExpr = '';
+        render();
+      },
+      calcEquals() {
+        if (!state.calcExpr.trim()) return;
+        const ev = evaluateCitizenLive(state.calcExpr);
+        const cleanExpr = state.calcExpr.replace(/[+\-×÷]+$/, '');
+        state.calcHistory.unshift({ expr: cleanExpr, result: ev.result, count: ev.count });
+        state.calcExpr = ev.result;
+        render();
+      },
+      calcToggleGst() {
+        state.calcShowGst = !state.calcShowGst;
+        render();
+      },
+      calcApplyGst(rate) {
+        const ev = evaluateCitizenLive(state.calcExpr);
+        if (!ev.num) return;
+        const gst = Number(((ev.num * rate) / 100).toFixed(2));
+        const total = Number((ev.num + gst).toFixed(2));
+        state.calcGstNote = `GST ${rate > 0 ? '+' + rate : rate}%: Base=${ev.num} | GST=${gst} | Total=${total}`;
+        state.calcExpr = String(total);
+        render();
+      },
+      calcToggleTape() {
+        state.calcShowTape = !state.calcShowTape;
+        state.calcShowHistory = false;
+        render();
+      },
+      calcToggleHistory() {
+        state.calcShowHistory = !state.calcShowHistory;
+        state.calcShowTape = false;
+        render();
+      },
+      calcLoad20Demo() {
+        state.calcExpr = '3+32+32+63+658+32+325+3256+3256+325+322+32+14+50+120+450+80+95+210+345+';
+        state.calcGstNote = '';
+        render();
       },
 
       // Admin Actions
@@ -1102,13 +1261,12 @@
 
             <nav class="hidden lg:flex items-center gap-1.5">
               ${[
-                ['home', 'Home'],
+                ['calculator', '🧮 Citizen Calculator'],
+                ['home', 'APK Store'],
                 ['apps', 'Apps'],
                 ['games', 'Games'],
                 ['categories', 'Categories'],
                 ['top-charts', 'Top Charts'],
-                ['about', 'About'],
-                ['contact', 'Contact'],
               ]
                 .map(
                   ([id, label]) => `
@@ -1123,11 +1281,14 @@
             </nav>
 
             <div class="flex items-center gap-2">
+              <button onclick="window.apkHubActions.navigatePublic('${state.publicView === 'calculator' ? 'home' : 'calculator'}')" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#16C653] text-[#101A3A] text-xs font-extrabold shadow-md cursor-pointer">
+                <span>${state.publicView === 'calculator' ? '📱 APK Store' : '🧮 Calculator'}</span>
+              </button>
               <button onclick="window.apkHubActions.switchMode('admin')" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-[#6829E8] to-[#7047EB] hover:opacity-95 text-white text-xs font-extrabold shadow-md transition-all cursor-pointer">
                 <span>⚡ Admin Panel</span>
               </button>
               <button onclick="window.apkHubActions.toggleDarkMode()" class="px-3 py-2 rounded-xl bg-[#172554] hover:bg-[#1e316d] border border-white/10 text-xs font-semibold text-slate-100 cursor-pointer">
-                ${state.darkMode ? '☀️ Light' : '🌙 Dark'}
+                ${state.darkMode ? '☀️' : '🌙'}
               </button>
               <button onclick="window.apkHubActions.toggleMobileMenu()" class="lg:hidden p-2.5 rounded-xl bg-[#172554] border border-white/10 text-white cursor-pointer">
                 ☰
@@ -1140,13 +1301,12 @@
               ? `
             <div class="lg:hidden bg-[#101A3A] border-t border-white/10 px-4 py-4 space-y-1.5">
               ${[
-                ['home', 'Home'],
+                ['calculator', '🧮 Citizen Calculator (Unlimited)'],
+                ['home', '📱 APK Hub Store'],
                 ['apps', 'Apps'],
                 ['games', 'Games'],
                 ['categories', 'Categories'],
                 ['top-charts', 'Top Charts'],
-                ['about', 'About'],
-                ['contact', 'Contact'],
               ]
                 .map(
                   ([id, label]) => `
@@ -1168,7 +1328,124 @@
 
       let bodyHtml = '';
 
-      if (state.publicView === 'details') {
+      if (state.publicView === 'calculator') {
+        const ev = evaluateCitizenLive(state.calcExpr);
+        const fontSize = state.calcExpr.length > 65 ? '1.25rem' : state.calcExpr.length > 32 ? '1.5rem' : '1.85rem';
+        const formattedExpr = state.calcExpr
+          ? state.calcExpr.replace(/([+\-×÷%()])/g, '<span class="text-[#2E8B22] font-semibold mx-0.5">$1</span>')
+          : '<span class="text-slate-300">0</span>';
+
+        bodyHtml = `
+          <main class="flex-1 bg-[#F5F8FF] dark:bg-[#0B1229] py-0 sm:py-6 px-0 sm:px-4">
+            <div class="w-full max-w-md mx-auto bg-white dark:bg-[#0F172A] min-h-[calc(100vh-4rem)] sm:min-h-0 sm:rounded-[36px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col justify-between overflow-hidden select-none">
+              <!-- Top Bar: Menu, Unlimited Counter, 20+ Demo, GST -->
+              <div class="px-5 pt-4 pb-2 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-1 rounded-full bg-[#E6F2EA] text-[#2E8B22] text-[11px] font-extrabold">
+                    ${ev.count > 0 ? ev.count + ' Numbers · Unlimited' : 'Unlimited Numbers'}
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="window.apkHubActions.calcLoad20Demo()" class="px-2.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-[#374151] text-[11px] font-bold cursor-pointer">20+ Demo</button>
+                  <button onclick="window.apkHubActions.calcToggleGst()" class="px-4 py-1.5 rounded-full text-xs font-extrabold cursor-pointer ${state.calcShowGst ? 'bg-[#2E8B22] text-white' : 'bg-[#E6F2EA] text-[#2E8B22]'}">GST</button>
+                </div>
+              </div>
+
+              ${state.calcShowGst ? `
+                <div class="px-4 py-2 bg-[#F6FAF7] border-y border-[#E6F2EA] space-y-1.5">
+                  <div class="grid grid-cols-5 gap-1.5">
+                    ${[3, 5, 12, 18, 28].map((r) => `<button onclick="window.apkHubActions.calcApplyGst(${r})" class="py-1.5 rounded-lg bg-[#E6F2EA] text-[#2E8B22] font-extrabold text-[11px] cursor-pointer">+${r}%</button>`).join('')}
+                  </div>
+                  <div class="grid grid-cols-5 gap-1.5">
+                    ${[-3, -5, -12, -18, -28].map((r) => `<button onclick="window.apkHubActions.calcApplyGst(${r})" class="py-1.5 rounded-lg bg-red-50 text-red-700 font-extrabold text-[11px] cursor-pointer">${r}%</button>`).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Expression & Live Auto-Calculated Total -->
+              <div class="px-6 pt-3 pb-2 flex-1 flex flex-col justify-between min-h-[175px]">
+                ${ev.terms.length > 0 ? `
+                  <div class="flex items-center gap-1.5 overflow-x-auto pb-1.5">
+                    ${ev.terms.map((t) => `<span class="shrink-0 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border ${t.index >= 15 ? 'bg-emerald-50 border-[#2E8B22]/40 text-[#2E8B22]' : 'bg-slate-50 border-slate-200 text-slate-600'}">#${t.index}: ${t.op}${t.val}</span>`).join('')}
+                  </div>
+                ` : '<div></div>'}
+
+                <div id="calc-expr-box" class="w-full max-h-[96px] overflow-y-auto text-right break-all leading-snug tracking-tight font-medium text-[#1F2937] dark:text-white" style="font-size:${fontSize}">
+                  ${formattedExpr}<span class="inline-block w-[2.5px] h-[1.15em] bg-[#2E8B22] align-middle ml-0.5 animate-pulse"></span>
+                </div>
+
+                ${state.calcGstNote ? `<div class="text-[11px] text-right font-mono text-[#2E8B22] bg-[#E6F2EA]/60 px-2.5 py-1 rounded-lg mt-1">${state.calcGstNote}</div>` : ''}
+
+                <div class="pt-2 flex items-center justify-between gap-2">
+                  <span class="text-[11px] font-bold text-[#2E8B22]">Auto-Calculated Live Result</span>
+                  <div class="text-right font-normal text-[#6B7280] dark:text-slate-300 tracking-tight truncate text-3xl sm:text-4xl tabular-nums">${ev.result}</div>
+                </div>
+              </div>
+
+              <!-- Utility Row -->
+              <div class="px-7 py-3 flex items-center justify-between border-b border-slate-200/80 text-[#6B7280]">
+                <div class="flex items-center gap-7">
+                  <button onclick="window.apkHubActions.calcToggleHistory()" class="p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer" title="History">🕒</button>
+                  <button onclick="window.apkHubActions.calcToggleTape()" class="p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer" title="Check All Entries">📏</button>
+                  <button onclick="window.apkHubActions.calcLoad20Demo()" class="p-1.5 rounded-lg hover:bg-slate-100 text-xs font-bold cursor-pointer" title="Load 20 Numbers">√π</button>
+                </div>
+                <button onclick="window.apkHubActions.calcBack()" class="p-1.5 rounded-lg text-[#2E8B22] font-extrabold text-lg cursor-pointer">⌫</button>
+              </div>
+
+              ${state.calcShowHistory ? `
+                <div class="px-5 py-3 bg-[#F9FBF9] border-b border-slate-200 max-h-44 overflow-y-auto space-y-1.5">
+                  ${state.calcHistory.map((h) => `
+                    <div class="p-2 rounded-xl bg-white border border-slate-200 text-right text-xs">
+                      <div class="text-[10px] text-[#2E8B22] font-bold">${h.count} Numbers</div>
+                      <div class="text-slate-600 break-all">${h.expr}</div>
+                      <div class="font-extrabold text-[#111827]">= ${h.result}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+
+              ${state.calcShowTape ? `
+                <div class="px-5 py-3 bg-[#F9FBF9] border-b border-slate-200 max-h-44 overflow-y-auto grid grid-cols-3 gap-1.5">
+                  ${ev.terms.map((t) => `
+                    <div class="p-1.5 rounded-lg bg-white border border-slate-200 flex items-center justify-between text-xs font-mono">
+                      <span class="text-slate-400 font-bold">#${t.index}</span>
+                      <span class="font-extrabold text-[#111827]">${t.op}${t.val}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+
+              <!-- 4x5 Circular Keypad -->
+              <div class="p-5 sm:p-6 grid grid-cols-4 gap-3.5 sm:gap-4 bg-white dark:bg-[#0F172A]">
+                <button onclick="window.apkHubActions.calcClear()" class="h-[68px] rounded-full bg-[#FCE8E6] active:scale-95 text-[#D93025] text-2xl font-medium flex items-center justify-center cursor-pointer">C</button>
+                <button onclick="window.apkHubActions.calcParen()" class="h-[68px] rounded-full bg-[#E6F2EA] active:scale-95 text-[#1E7E1E] text-2xl font-medium flex items-center justify-center cursor-pointer">( )</button>
+                <button onclick="window.apkHubActions.calcPercent()" class="h-[68px] rounded-full bg-[#E6F2EA] active:scale-95 text-[#1E7E1E] text-2xl font-medium flex items-center justify-center cursor-pointer">%</button>
+                <button onclick="window.apkHubActions.calcOp('÷')" class="h-[68px] rounded-full bg-[#E6F2EA] active:scale-95 text-[#1E7E1E] text-3xl font-normal flex items-center justify-center cursor-pointer">÷</button>
+
+                <button onclick="window.apkHubActions.calcDigit('7')" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-2xl font-medium flex items-center justify-center cursor-pointer">7</button>
+                <button onclick="window.apkHubActions.calcDigit('8')" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-2xl font-medium flex items-center justify-center cursor-pointer">8</button>
+                <button onclick="window.apkHubActions.calcDigit('9')" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-2xl font-medium flex items-center justify-center cursor-pointer">9</button>
+                <button onclick="window.apkHubActions.calcOp('×')" class="h-[68px] rounded-full bg-[#E6F2EA] active:scale-95 text-[#1E7E1E] text-3xl font-normal flex items-center justify-center cursor-pointer">×</button>
+
+                <button onclick="window.apkHubActions.calcDigit('4')" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-2xl font-medium flex items-center justify-center cursor-pointer">4</button>
+                <button onclick="window.apkHubActions.calcDigit('5')" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-2xl font-medium flex items-center justify-center cursor-pointer">5</button>
+                <button onclick="window.apkHubActions.calcDigit('6')" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-2xl font-medium flex items-center justify-center cursor-pointer">6</button>
+                <button onclick="window.apkHubActions.calcOp('-')" class="h-[68px] rounded-full bg-[#E6F2EA] active:scale-95 text-[#1E7E1E] text-3xl font-normal flex items-center justify-center cursor-pointer">−</button>
+
+                <button onclick="window.apkHubActions.calcDigit('1')" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-2xl font-medium flex items-center justify-center cursor-pointer">1</button>
+                <button onclick="window.apkHubActions.calcDigit('2')" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-2xl font-medium flex items-center justify-center cursor-pointer">2</button>
+                <button onclick="window.apkHubActions.calcDigit('3')" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-2xl font-medium flex items-center justify-center cursor-pointer">3</button>
+                <button onclick="window.apkHubActions.calcOp('+')" class="h-[68px] rounded-full bg-[#E6F2EA] active:scale-95 text-[#1E7E1E] text-3xl font-normal flex items-center justify-center cursor-pointer">+</button>
+
+                <button onclick="window.apkHubActions.calcPlusMinus()" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-xl font-medium flex items-center justify-center cursor-pointer">+/−</button>
+                <button onclick="window.apkHubActions.calcDigit('0')" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-2xl font-medium flex items-center justify-center cursor-pointer">0</button>
+                <button onclick="window.apkHubActions.calcDot()" class="h-[68px] rounded-full bg-[#F1F5F2] active:scale-95 text-[#1F2937] text-3xl font-bold flex items-center justify-center cursor-pointer">.</button>
+                <button onclick="window.apkHubActions.calcEquals()" class="h-[68px] rounded-full bg-[#2E8B22] active:scale-95 text-white text-3xl font-normal flex items-center justify-center shadow-md cursor-pointer">=</button>
+              </div>
+            </div>
+          </main>
+        `;
+      } else if (state.publicView === 'details') {
         const app = catalog.find((a) => a.slug === state.selectedSlug) || catalog[0];
         const customScreens = (app.screenshotUrls || []).filter(Boolean);
         const screens = [

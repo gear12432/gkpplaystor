@@ -28,6 +28,7 @@ import {
   Trophy,
   Palette,
   LayoutDashboard,
+  Calculator,
 } from 'lucide-react';
 import {
   CATEGORIES,
@@ -36,6 +37,7 @@ import {
 import { useLiveApkCatalog } from '@/lib/firebase-catalog';
 import { TrendingAppCard, LatestAppCard } from '@/components/AppCard';
 import { AppIcon } from '@/components/AppIcon';
+import { CitizenCalculator } from '@/components/CitizenCalculator';
 
 type SortOption = 'popular' | 'rating' | 'latest' | 'size';
 type TabOption = 'all' | 'app' | 'game';
@@ -78,6 +80,7 @@ function CategoryIcon({ iconName }: { iconName: string }) {
 
 export default function HomePage() {
   const liveCatalog = useLiveApkCatalog();
+  const [homeMode, setHomeMode] = useState<'calculator' | 'store'>('calculator');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryName | 'ALL'>(
     'ALL'
@@ -153,6 +156,49 @@ export default function HomePage() {
 
   return (
     <main className="flex-1">
+      {/* Mode Switcher Bar: Citizen Calculator (Unlimited Numbers) <-> APK Hub Store */}
+      <div className="bg-[#101A3A] border-b border-white/10 px-4 py-2.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-center sm:justify-between gap-2 flex-wrap">
+          <div className="inline-flex items-center p-1 rounded-xl bg-[#172554] border border-white/10">
+            <button
+              type="button"
+              onClick={() => setHomeMode('calculator')}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                homeMode === 'calculator'
+                  ? 'bg-[#16C653] text-[#101A3A] shadow-sm'
+                  : 'text-slate-200 hover:text-white'
+              }`}
+            >
+              <Calculator className="w-3.5 h-3.5" />
+              <span>Citizen Calculator (Unlimited)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setHomeMode('store')}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                homeMode === 'store'
+                  ? 'bg-[#16C653] text-[#101A3A] shadow-sm'
+                  : 'text-slate-200 hover:text-white'
+              }`}
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>APK Hub Store</span>
+            </button>
+          </div>
+          <span className="text-[11px] text-[#75E85C] font-semibold hidden sm:inline">
+            ✓ Fixed 14-Number Limit — Enter 15, 50, 100, or Unlimited Numbers with Live Auto-Calculation
+          </span>
+        </div>
+      </div>
+
+      {homeMode === 'calculator' ? (
+        <section className="py-0 sm:py-6 px-0 sm:px-4 bg-[#F5F8FF] dark:bg-[#0B1229]">
+          <CitizenCalculator
+            onSwitchToStore={() => setHomeMode('store')}
+          />
+        </section>
+      ) : (
+        <>
       {/* =================================================================
           1. CLEAN SEARCH BAR SECTION (HERO TEXT & MOBILE MOCKUP REMOVED)
          ================================================================= */}
@@ -581,6 +627,8 @@ export default function HomePage() {
           </div>
         )}
       </section>
+      </>
+      )}
     </main>
   );
 }
