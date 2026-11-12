@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import { ThemeProvider } from '@/components/ThemeProvider';
+import { AppChromeShell } from '@/components/AppChromeShell';
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -48,9 +50,11 @@ export default function RootLayout({
     >
       <body
         suppressHydrationWarning
-        className="font-sans antialiased min-h-screen flex flex-col bg-[#F4F7FC] text-[#172033]"
+        className="font-sans antialiased min-h-screen flex flex-col bg-[#F5F8FF] dark:bg-[#0B1229] text-[#111827] dark:text-slate-100 transition-colors"
       >
-        {children}
+        <ThemeProvider>
+          <AppChromeShell>{children}</AppChromeShell>
+        </ThemeProvider>
       </body>
     </html>
   );

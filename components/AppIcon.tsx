@@ -8,7 +8,6 @@ import {
   Music,
   Cone,
   Package,
-  ShieldCheck,
   Tv,
   Compass,
   Lock,
@@ -46,15 +45,37 @@ export function AppIcon({ app, size = 'md', className = '' }: AppIconProps) {
   }[size];
 
   const glyph = app.iconStyle.glyph;
+  const isCustomImage =
+    glyph.startsWith('http://') ||
+    glyph.startsWith('https://') ||
+    glyph.startsWith('data:image/');
   const isSnap = glyph === 'snapchat';
 
   const renderGlyph = () => {
-    const commonClass = `${iconSizes} ${isSnap ? 'text-slate-900' : 'text-white'} drop-shadow-sm`;
+    if (isCustomImage) {
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={glyph}
+          alt={app.name}
+          className="w-full h-full object-cover"
+        />
+      );
+    }
+
+    const commonClass = `${iconSizes} ${
+      isSnap ? 'text-slate-900' : 'text-white'
+    } drop-shadow-sm`;
     switch (glyph) {
       case 'whatsapp':
         return <MessageCircle className={commonClass} strokeWidth={2.3} />;
       case 'telegram':
-        return <Send className={`${commonClass} -translate-x-0.5 translate-y-0.5`} strokeWidth={2.2} />;
+        return (
+          <Send
+            className={`${commonClass} -translate-x-0.5 translate-y-0.5`}
+            strokeWidth={2.2}
+          />
+        );
       case 'instagram':
         return <Camera className={commonClass} strokeWidth={2.2} />;
       case 'youtube':
@@ -102,10 +123,14 @@ export function AppIcon({ app, size = 'md', className = '' }: AppIconProps) {
       aria-label={`${app.name} application icon`}
     >
       <div className="absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-white/25 pointer-events-none" />
-      <div className="relative z-10 flex items-center justify-center">
+      <div
+        className={`relative z-10 flex items-center justify-center ${
+          isCustomImage ? 'w-full h-full' : ''
+        }`}
+      >
         {renderGlyph()}
       </div>
-      <div className="absolute bottom-1 right-1.5 text-[9px] font-bold tracking-tighter uppercase opacity-60 text-white mix-blend-overlay pointer-events-none">
+      <div className="absolute bottom-1 right-1.5 text-[9px] font-bold tracking-tighter uppercase opacity-60 text-white mix-blend-overlay pointer-events-none z-20">
         APK
       </div>
     </div>

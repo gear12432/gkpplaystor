@@ -17,6 +17,7 @@ import {
   Trophy,
   Info,
   Mail,
+  ShieldCheck,
 } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 
@@ -38,7 +39,7 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-[#101A3A]/95 dark:bg-[#0B1229]/95 backdrop-blur-md border-b border-white/10 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Zone 1: Brand Lockup */}
           <Link
             href="/"
@@ -78,25 +79,33 @@ export function Header() {
             })}
           </nav>
 
-          {/* Zone 3: Theme Toggle & Mobile Menu Trigger */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          {/* Zone 3: Admin Panel Switch, Theme Toggle & Mobile Menu Trigger */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#7047EB] hover:bg-[#5f37d4] text-xs font-extrabold text-white transition-colors whitespace-nowrap shrink-0 shadow-sm"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#75E85C]" />
+              <span>Admin Panel</span>
+            </Link>
+
             <button
               type="button"
               onClick={toggleTheme}
               aria-label={
                 theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'
               }
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16C653]"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16C653]"
             >
               {theme === 'dark' ? (
                 <>
                   <Sun className="w-4 h-4 text-[#75E85C]" />
-                  <span className="hidden sm:inline">Light Mode</span>
+                  <span className="hidden sm:inline">Light</span>
                 </>
               ) : (
                 <>
                   <Moon className="w-4 h-4 text-[#75E85C]" />
-                  <span className="hidden sm:inline">Dark Mode</span>
+                  <span className="hidden sm:inline">Dark</span>
                 </>
               )}
             </button>
@@ -177,6 +186,15 @@ export function Header() {
                     </Link>
                   );
                 })}
+
+                <Link
+                  href="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-extrabold bg-[#7047EB] text-white mt-2"
+                >
+                  <ShieldCheck className="w-4 h-4 text-[#75E85C] shrink-0" />
+                  <span>Open Admin Panel</span>
+                </Link>
               </nav>
             </div>
 

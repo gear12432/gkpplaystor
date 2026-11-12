@@ -1,5 +1,4 @@
 import React from 'react';
-import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { APK_ITEMS, getAppBySlug } from '@/lib/apk-data';
 import { AppDetailsAndDownloadView } from '@/components/AppDetailsAndDownloadView';
@@ -19,7 +18,7 @@ export async function generateMetadata({
   const app = getAppBySlug(slug);
   if (!app) {
     return {
-      title: 'Application Not Found – APK Hub',
+      title: 'APK Details – APK Hub',
     };
   }
   return {
@@ -41,13 +40,9 @@ export default async function AppDetailsPage({
   const { slug } = await params;
   const app = getAppBySlug(slug);
 
-  if (!app) {
-    notFound();
-  }
-
   return (
     <main className="flex-1">
-      <AppDetailsAndDownloadView app={app} />
+      <AppDetailsAndDownloadView app={app} slug={slug} />
     </main>
   );
 }

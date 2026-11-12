@@ -22,6 +22,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { ApkItem } from '@/lib/apk-data';
+import { useLiveApkCatalog } from '@/lib/firebase-catalog';
 import { AppIcon } from '@/components/AppIcon';
 
 type DownloadState = 'idle' | 'downloading' | 'completed' | 'error';
@@ -35,12 +36,14 @@ interface PortraitScreenItem {
   bgFrom: string;
   bgTo: string;
   uiType: string;
+  customImageUrl?: string;
 }
 
 function buildFourPortraitScreenshots(app: ApkItem): PortraitScreenItem[] {
   const accent = app.iconStyle.accent || '#16C653';
   const baseUI =
     app.screenshots[0]?.uiType || (app.type === 'game' ? 'game' : 'utility');
+  const customUrls = (app.screenshotUrls || []).filter(Boolean);
 
   return [
     {
@@ -54,6 +57,7 @@ function buildFourPortraitScreenshots(app: ApkItem): PortraitScreenItem[] {
       bgFrom: '#101A3A',
       bgTo: '#1E293B',
       uiType: baseUI,
+      customImageUrl: customUrls[0],
     },
     {
       id: `${app.id}-sc-2`,
@@ -66,6 +70,7 @@ function buildFourPortraitScreenshots(app: ApkItem): PortraitScreenItem[] {
       bgFrom: '#172554',
       bgTo: '#0F172A',
       uiType: app.screenshots[1]?.uiType || baseUI,
+      customImageUrl: customUrls[1],
     },
     {
       id: `${app.id}-sc-3`,
@@ -78,6 +83,7 @@ function buildFourPortraitScreenshots(app: ApkItem): PortraitScreenItem[] {
       bgFrom: '#1E1B4B',
       bgTo: '#0F172A',
       uiType: app.screenshots[2]?.uiType || 'security',
+      customImageUrl: customUrls[2],
     },
     {
       id: `${app.id}-sc-4`,
@@ -88,17 +94,52 @@ function buildFourPortraitScreenshots(app: ApkItem): PortraitScreenItem[] {
       bgFrom: '#064E3B',
       bgTo: '#0F172A',
       uiType: 'security',
+      customImageUrl: customUrls[3],
     },
   ];
 }
 
-export function AppDetailsAndDownloadView({ app }: { app: ApkItem }) {
+export function AppDetailsAndDownloadView({
+  app: initialApp,
+  slug,
+}: {
+  app?: ApkItem;
+  slug?: string;
+}) {
+  const liveCatalog = useLiveApkCatalog();
+  const app =
+    liveCatalog.find(
+      (item) =>
+        item.slug === (slug || initialApp?.slug) ||
+        item.id === (slug || initialApp?.id)
+    ) || initialApp;
+
   const [status, setStatus] = useState<DownloadState>('idle');
   const [progress, setProgress] = useState<number>(0);
   const [bytesReceived, setBytesReceived] = useState<number>(0);
   const [totalBytes, setTotalBytes] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  if (!app) {
+    return (
+      <div className="max-w-3xl w-full mx-auto px-4 sm:px-6 py-12 text-center space-y-4">
+        <div className="text-xl font-extrabold text-[#111827] dark:text-white">
+          APK Package Not Found
+        </div>
+        <p className="text-sm text-[#64748B] dark:text-slate-400">
+          The requested APK package could not be found in the catalog.
+        </p>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#16C653] text-white font-bold text-xs"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to APK Hub</span>
+        </Link>
+      </div>
+    );
+  }
 
   const portraitScreens = buildFourPortraitScreenshots(app);
 
@@ -135,7 +176,7 @@ export function AppDetailsAndDownloadView({ app }: { app: ApkItem }) {
       if (app.isSamplePreview || !app.isAuthorizedDirectApk) {
         await new Promise((r) => setTimeout(r, 250));
         throw new Error(
-          `${app.name} (${app.packageName}) is a proprietary application owned by ${app.developer}. APK Hub does not host unauthorized third-party copies of copyrighted binaries.`
+          `${app.name} (${app.packageName}) is currently disabled for direct binary download or is a proprietary application owned by ${app.developer}.`
         );
       }
 
@@ -222,6 +263,24 @@ export function AppDetailsAndDownloadView({ app }: { app: ApkItem }) {
     screen: PortraitScreenItem,
     index: number
   ) => {
+    if (screen.customImageUrl) {
+      return (
+        <div className="relative w-full h-full rounded-xl overflow-hidden flex flex-col justify-between">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={screen.customImageUrl}
+            alt={`${app.name} Screenshot ${index + 1}`}
+            className="w-full h-full object-cover rounded-xl"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute bottom-1.5 left-1.5 right-1.5 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-xs flex items-center justify-between text-[9px] text-white">
+            <span>Screen 0{index + 1}</span>
+            <Maximize2 className="w-3 h-3 text-white/80" />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="flex flex-col justify-between h-full">
         {/* Top Phone Status Bar */}

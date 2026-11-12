@@ -78,6 +78,14 @@ export function Footer() {
                   Browse Categories
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/admin"
+                  className="inline-flex items-center gap-1.5 text-[#75E85C] font-bold hover:underline transition-colors"
+                >
+                  <span>Admin Panel Console</span>
+                </Link>
+              </li>
             </ul>
           </div>
 

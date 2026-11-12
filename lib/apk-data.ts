@@ -80,6 +80,7 @@ export interface ApkItem {
     glyph: string;
   };
   screenshots: AppScreenshot[];
+  screenshotUrls?: string[];
 }
 
 export const CATEGORIES: CategoryInfo[] = [
